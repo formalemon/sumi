@@ -1,0 +1,32 @@
+// Window and layer rules.
+// https://niri-wm.github.io/niri/Configuration:-Window-Rules
+
+// ── Every window ────────────────────────────────────────────────────
+// The same 12px corner enso's panels and toasts use. Clipping keeps a
+// window's content from showing past the rounded corner.
+window-rule {
+    geometry-corner-radius 12
+    clip-to-geometry true
+}
+
+// ── Applications ────────────────────────────────────────────────────
+
+// Picture-in-picture floats.
+window-rule {
+    match app-id=r#"firefox$"# title="^Picture-in-Picture$"
+    open-floating true
+}
+
+// ── enso ────────────────────────────────────────────────────────────
+
+// Notifications are for your eyes: leave them out of screen shares.
+layer-rule {
+    match namespace="^enso-notify$"
+    block-out-from "screencast"
+}
+
+// Keep secrets out of recordings and screenshots.
+// window-rule {
+//     match app-id=r#"^org\.keepassxc\.KeePassXC$"#
+//     block-out-from "screen-capture"
+// }

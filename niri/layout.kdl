@@ -1,0 +1,48 @@
+// Layout: spacing and geometry. Colours are in theme.kdl.
+// https://niri-wm.github.io/niri/Configuration:-Layout
+
+layout {
+    // Generous breathing room, the same on every side.
+    gaps 16
+    center-focused-column "never"
+
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+    }
+
+    default-column-width { proportion 0.5; }
+
+    // A thin ring around the focused window; no border on the rest.
+    focus-ring {
+        width 2
+    }
+
+    border {
+        off
+    }
+
+    // A soft, low shadow so windows sit on the wallpaper instead of in it.
+    shadow {
+        on
+        softness 30
+        spread 4
+        offset x=0 y=6
+    }
+
+    // enso-bar reserves its full 36px, but its islands stop 4px short of
+    // that, so the gap under them reads as 4 + 16. Pull windows up to leave
+    // 8px under the islands. (0 gives the full gap back; -16 touches the bar.)
+    struts {
+        top -12
+    }
+
+    tab-indicator {
+        width 4
+        gap 6
+        length total-proportion=0.4
+        corner-radius 2
+        place-within-column
+    }
+}

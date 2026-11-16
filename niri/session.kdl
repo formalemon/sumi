@@ -1,0 +1,18 @@
+// The session around the windows: decorations, cursor, screenshots, overlays.
+// https://niri-wm.github.io/niri/Configuration:-Miscellaneous
+
+// No title bars: niri draws the ring and the rounded corners itself.
+prefer-no-csd
+
+screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+
+cursor {
+    xcursor-theme "default"
+    xcursor-size 24
+    hide-when-typing
+}
+
+// The key list is one press away (Mod+Shift+/), not shown at every login.
+hotkey-overlay {
+    skip-at-startup
+}

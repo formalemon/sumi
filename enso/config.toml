@@ -1,0 +1,12 @@
+# enso — settings for the whole suite. Anything left out keeps its default;
+# enso's config.example.toml lists every option.
+
+[wall]
+# Shown for every theme that has no picture of its own.
+default = "~/.config/enso/wallpapers/samurai_bebop.png"
+# "cover" fills the screen and crops; "contain" shows the whole picture.
+fit = "cover"
+
+# One picture per theme, when a theme should look different:
+# [wall.themes]
+# rose-pine-dawn = "~/.config/enso/wallpapers/morning.png"

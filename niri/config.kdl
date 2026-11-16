@@ -1,0 +1,12 @@
+// niri — entry point. Every concern lives in its own file; this one only
+// says which, and in what order. Later files win where two set the same thing.
+// https://niri-wm.github.io/niri/Configuration:-Introduction
+
+include "outputs.kdl"    // monitors
+include "input.kdl"      // keyboard, touchpad, mouse
+include "layout.kdl"     // gaps, column widths, ring and shadow geometry
+include "theme.kdl"      // every colour, and nothing else
+include "rules.kdl"      // window and layer rules
+include "session.kdl"    // cursor, screenshots, overlays
+include "autostart.kdl"  // the enso desktop
+include "binds.kdl"      // keys

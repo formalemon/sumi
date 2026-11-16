@@ -1,0 +1,49 @@
+// Colours — Rosé Pine Moon, the palette enso uses by default.
+// This is the only file that names a colour: to follow another enso theme,
+// swap the values here (`enso-ctl theme show <id>` prints a palette).
+//
+//   base  #232136   overlay        #393552   iris  #c4a7e7
+//   love  #eb6f92   highlight-med  #44415a   foam  #9ccfd8
+
+layout {
+    // Shown only until enso-wall has drawn, and behind "contain" wallpapers.
+    background-color "#232136"            // base
+
+    focus-ring {
+        active-color   "#c4a7e7"          // iris
+        inactive-color "#44415a"          // highlight-med
+        urgent-color   "#eb6f92"          // love
+    }
+
+    border {
+        active-color   "#c4a7e7"
+        inactive-color "#44415a"
+        urgent-color   "#eb6f92"
+    }
+
+    shadow {
+        color "#00000066"
+    }
+
+    tab-indicator {
+        active-color   "#c4a7e7"
+        inactive-color "#44415a"
+        urgent-color   "#eb6f92"
+    }
+
+    insert-hint {
+        color "#c4a7e766"                 // iris, translucent
+    }
+}
+
+overview {
+    backdrop-color "#232136"              // base
+}
+
+recent-windows {
+    highlight {
+        active-color "#c4a7e7"
+        urgent-color "#eb6f92"
+        corner-radius 12
+    }
+}
