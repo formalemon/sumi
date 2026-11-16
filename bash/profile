@@ -1,0 +1,8 @@
+# Login shells (~/.bash_profile links here): the environment, set once and
+# inherited by niri and everything it starts.
+
+export PATH="$HOME/.local/bin:$PATH"
+export EDITOR=nvim VISUAL=nvim
+
+# Interactive login shells get the interactive setup too.
+[[ -f ~/.bashrc ]] && . ~/.bashrc

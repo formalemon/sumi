@@ -17,6 +17,11 @@ niri/                 the compositor
   session.kdl           cursor, screenshots, overlays
   autostart.kdl         what starts with niri
   binds.kdl             keys
+bash/                 the shell
+  profile               login shells: PATH, editor      (~/.bash_profile)
+  rc                    interactive shells: history, completion (~/.bashrc)
+  prompt                directory, git branch, a mark that reddens on failure
+  aliases               shorthands
 alacritty/            the terminal: padding, translucency; colours from enso
 nvim/                 Neovim: line numbers, rose-pine/neovim, no background of its own
 enso/                 the enso suite
@@ -32,6 +37,8 @@ ln -s ~/dev/sumi/niri ~/.config/niri
 ln -s ~/dev/sumi/enso ~/.config/enso
 ln -s ~/dev/sumi/alacritty ~/.config/alacritty
 ln -s ~/dev/sumi/nvim ~/.config/nvim
+ln -s ~/dev/sumi/bash/profile ~/.bash_profile   # bash reads only these two
+ln -s ~/dev/sumi/bash/rc ~/.bashrc              # names, so they stay in ~
 ```
 
 The niri config calls the enso tools by name, so they must be on `PATH`

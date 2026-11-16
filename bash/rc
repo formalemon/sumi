@@ -1,0 +1,32 @@
+# Interactive shells (~/.bashrc links here). The pieces live beside this
+# file: prompt, aliases.
+
+[[ $- != *i* ]] && return
+
+here=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+
+# ── History: out of $HOME, long, shared between terminals ───────────
+mkdir -p "${XDG_STATE_HOME:-$HOME/.local/state}/bash"
+HISTFILE="${XDG_STATE_HOME:-$HOME/.local/state}/bash/history"
+HISTSIZE=50000
+HISTFILESIZE=100000
+HISTCONTROL=ignoreboth:erasedups
+HISTIGNORE='ls:ll:la:cd:..:pwd:clear:history'
+shopt -s histappend cmdhist
+
+# ── Behaviour ───────────────────────────────────────────────────────
+shopt -s autocd cdspell dirspell globstar checkwinsize
+# Tab completion: ignore case, show the choices at once, in colour.
+bind 'set completion-ignore-case on'
+bind 'set show-all-if-ambiguous on'
+bind 'set colored-stats on'
+bind 'set mark-symlinked-directories on'
+# Up and Down search history for what is already typed.
+bind '"\e[A": history-search-backward'
+bind '"\e[B": history-search-forward'
+
+[[ -r /usr/share/bash-completion/bash_completion ]] && . /usr/share/bash-completion/bash_completion
+
+. "$here/prompt"
+. "$here/aliases"
+unset here

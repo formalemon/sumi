@@ -1,0 +1,31 @@
+# The prompt: where you are, the git branch, and a mark that turns red when
+# the last command failed. Colours are the terminal's own, so the prompt
+# follows `enso-ctl theme set` (blue is foam, cyan rose, magenta iris,
+# red love).
+#
+#   ~/dev/enso  main *
+#   ❯
+
+if [[ -r /usr/share/git/completion/git-prompt.sh ]]; then
+    . /usr/share/git/completion/git-prompt.sh
+    GIT_PS1_SHOWDIRTYSTATE=1      # * unstaged, + staged
+    GIT_PS1_SHOWUNTRACKEDFILES=1  # % untracked
+    GIT_PS1_SHOWUPSTREAM=auto     # < behind, > ahead
+else
+    __git_ps1() { :; }
+fi
+
+__prompt() {
+    local status=$?
+    local reset='\[\e[0m\]' dim='\[\e[2m\]'
+    local mark='\[\e[35m\]'
+    ((status)) && mark='\[\e[31m\]'
+    # The machine's name only when it is not this one.
+    local where=''
+    [[ -n $SSH_CONNECTION ]] && where="${dim}\u@\h${reset} "
+    PS1="\n${where}\[\e[1;34m\]\w${reset}$(__git_ps1 "  \[\e[36m\]%s${reset}")\n${mark}❯${reset} "
+    # Write each command to the history file as it is run.
+    history -a
+}
+PROMPT_COMMAND=__prompt
+PS2='\[\e[2m\]…\[\e[0m\] '
