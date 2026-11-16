@@ -17,6 +17,8 @@ niri/                 the compositor
   session.kdl           cursor, screenshots, overlays
   autostart.kdl         what starts with niri
   binds.kdl             keys
+alacritty/            the terminal: padding, translucency; colours from enso
+nvim/                 Neovim: line numbers, rose-pine/neovim, no background of its own
 enso/                 the enso suite
   config.toml           settings (the wallpaper, for now)
   wallpapers/           pictures enso-wall shows
@@ -28,6 +30,8 @@ enso/                 the enso suite
 git clone <this repo> ~/dev/sumi
 ln -s ~/dev/sumi/niri ~/.config/niri
 ln -s ~/dev/sumi/enso ~/.config/enso
+ln -s ~/dev/sumi/alacritty ~/.config/alacritty
+ln -s ~/dev/sumi/nvim ~/.config/nvim
 ```
 
 The niri config calls the enso tools by name, so they must be on `PATH`
@@ -56,6 +60,7 @@ done
 - **Wallpaper:** drop a picture in `enso/wallpapers/` and name it in
   `enso/config.toml`, per theme if you like. `enso-wall list` shows which
   theme gets which.
-- **Colours:** `enso-ctl theme set <id>` recolours enso and niri together.
+- **Colours:** `enso-ctl theme set <id>` recolours enso, niri, Alacritty,
+  Neovim, and the GTK dark/light preference together.
   niri picks the palette up from `~/.local/state/enso/niri.kdl`, which
   enso-ctl writes; `niri/theme.kdl` is the fallback until it exists.

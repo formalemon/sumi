@@ -1,0 +1,19 @@
+# Alacritty. Colours come from enso: `enso-ctl theme set` rewrites the
+# imported file and running terminals follow. Anything set here wins over it.
+
+[general]
+import = ["~/.local/state/enso/alacritty.toml"]
+
+[window]
+# Breathing room between the text and the window's edge.
+padding = { x = 14, y = 12 }
+# Spread what the cell grid leaves over evenly around it.
+dynamic_padding = true
+# A little of the wallpaper shows through; Neovim draws no background of
+# its own (see nvim/init.lua), so it is translucent with the terminal.
+opacity = 0.9
+
+[[keyboard.bindings]]
+key = "Return"
+mods = "Shift"
+chars = "\u001B\r"
