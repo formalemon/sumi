@@ -1,0 +1,8 @@
+/* Firefox's own interface. Linked into each profile as chrome/userChrome.css
+   by ./install; read when Firefox starts.
+
+   The colours are enso's: `enso-ctl theme set` rewrites the imported file.
+   A stylesheet cannot say "~", so the path names this home outright. */
+@import url("file:///home/ren/.local/state/enso/firefox.css");
+
+/* Rules of your own go below the import. */

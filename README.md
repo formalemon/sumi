@@ -24,6 +24,9 @@ bash/                 the shell
   aliases               shorthands
 alacritty/            the terminal: padding, translucency; colours from enso
 nvim/                 Neovim: line numbers, rose-pine/neovim, no background of its own
+firefox/              Firefox's interface, linked into each profile
+  userChrome.css        imports enso's colours; rules of your own below
+  user.js               the preference that lets it be styled
 enso/                 the enso suite
   config.toml           settings (the wallpaper, for now)
   wallpapers/           pictures enso-wall shows
@@ -32,24 +35,16 @@ enso/                 the enso suite
 ## Install
 
 ```sh
-git clone <this repo> ~/dev/sumi
-ln -s ~/dev/sumi/niri ~/.config/niri
-ln -s ~/dev/sumi/enso ~/.config/enso
-ln -s ~/dev/sumi/alacritty ~/.config/alacritty
-ln -s ~/dev/sumi/nvim ~/.config/nvim
-ln -s ~/dev/sumi/bash/profile ~/.bash_profile   # bash reads only these two
-ln -s ~/dev/sumi/bash/rc ~/.bashrc              # names, so they stay in ~
+git clone https://github.com/formalemon/sumi ~/dev/sumi
+~/dev/sumi/install           # link everything into place
+~/dev/sumi/install --enso    # …and build enso from ~/dev/enso onto PATH
 ```
 
-The niri config calls the enso tools by name, so they must be on `PATH`
-(`~/.local/bin` is). From a checkout of enso:
-
-```sh
-cargo build --release
-for tool in bar ctl launch notify wall power lock; do
-    ln -s "$PWD/target/release/enso-$tool" ~/.local/bin/
-done
-```
+`install` links each directory into `~/.config` (and the two bash files into
+`~`, the only names bash reads), makes the directories the configs expect
+(`~/Pictures/Screenshots`), and has GTK and Firefox import the colours enso
+writes. It can be run again at any time; it never overwrites a file that is
+not its own.
 
 ## Keys worth knowing
 
@@ -58,7 +53,7 @@ done
 | `Mod+Space` | launcher (`enso-launch`) |
 | `Mod+C` | control center (`enso-ctl`) |
 | `Mod+Shift+E` | power menu (`enso-power`): lock, log out, restart, shut down |
-| `Super+Alt+L` | lock (`enso-lock`) |
+| `Super+Alt+L` | lock (`enso-lock`) — also by itself after 5 minutes alone, and before sleep |
 | `Mod+T` / `Mod+B` | terminal / browser |
 | `Mod+Shift+/` | every binding |
 
@@ -68,6 +63,6 @@ done
   `enso/config.toml`, per theme if you like. `enso-wall list` shows which
   theme gets which.
 - **Colours:** `enso-ctl theme set <id>` recolours enso, niri, Alacritty,
-  Neovim, and the GTK dark/light preference together.
+  Neovim, GTK dialogs, and Firefox together.
   niri picks the palette up from `~/.local/state/enso/niri.kdl`, which
   enso-ctl writes; `niri/theme.kdl` is the fallback until it exists.

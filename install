@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+# sumi — put these dotfiles in place. Safe to run again: what is already
+# right is left alone, and nothing of yours is overwritten.
+#
+#   ./install          link the configs, make the directories they expect
+#   ./install --enso   also build enso (from ~/dev/enso, or $ENSO) and put
+#                      its tools on PATH
+
+set -euo pipefail
+
+here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+config=${XDG_CONFIG_HOME:-$HOME/.config}
+state=${XDG_STATE_HOME:-$HOME/.local/state}
+
+say()  { printf '  %-10s %s\n' "$1" "$2"; }
+
+# link <file or directory here> <where it belongs>
+link() {
+    local target=$here/$1 dest=$2
+    if [[ -L $dest && $(readlink -f "$dest") == "$(readlink -f "$target")" ]]; then
+        say ok "$dest"
+    elif [[ -e $dest || -L $dest ]]; then
+        say SKIPPED "$dest exists and is not this repo's; move it away and run again"
+    else
+        mkdir -p "$(dirname "$dest")"
+        ln -s "$target" "$dest"
+        say linked "$dest"
+    fi
+}
+
+# import <stylesheet> <generated enso file>: make the stylesheet, which is
+# yours to add to, bring in the colours enso writes.
+import() {
+    local sheet=$1 line="@import url(\"file://$state/enso/$2\");"
+    if [[ -f $sheet ]] && grep -qF "enso/$2" "$sheet"; then
+        say ok "$sheet"
+    else
+        mkdir -p "$(dirname "$sheet")"
+        # An @import has to come before any rule.
+        { printf '%s\n' "$line"; [[ -f $sheet ]] && cat "$sheet"; } > "$sheet.tmp"
+        mv "$sheet.tmp" "$sheet"
+        say imports "$sheet"
+    fi
+}
+
+echo "configs"
+link niri       "$config/niri"
+link enso       "$config/enso"
+link alacritty  "$config/alacritty"
+link nvim       "$config/nvim"
+link bash/profile "$HOME/.bash_profile"
+link bash/rc      "$HOME/.bashrc"
+
+echo "directories"
+# niri saves screenshots here and does not make the directory itself.
+for dir in "$HOME/Pictures/Screenshots" "$state/bash" "$HOME/.local/bin"; do
+    mkdir -p "$dir" && say ok "$dir"
+done
+
+echo "colours from enso"
+# GTK 3: file choosers and dialogs. GTK 4 only where it has been used.
+import "$config/gtk-3.0/gtk.css" gtk-3.0.css
+[[ -d $config/gtk-4.0 ]] && import "$config/gtk-4.0/gtk.css" gtk-4.0.css
+# Firefox: every profile's interface, and the setting that lets it be styled.
+found=0
+for profile in "$config"/mozilla/firefox/*/ "$HOME"/.mozilla/firefox/*/; do
+    [[ -f ${profile}prefs.js || -f ${profile}times.json ]] || continue
+    found=1
+    link firefox/userChrome.css "${profile}chrome/userChrome.css"
+    link firefox/user.js        "${profile}user.js"
+done
+((found)) || say - "no Firefox profile yet; run again once Firefox has started"
+
+if [[ ${1:-} == --enso ]]; then
+    echo "enso"
+    enso=${ENSO:-$HOME/dev/enso}
+    if [[ -f $enso/Cargo.toml ]]; then
+        (cd "$enso" && cargo build --release)
+        for tool in bar ctl launch notify wall power lock; do
+            ln -sf "$enso/target/release/enso-$tool" "$HOME/.local/bin/enso-$tool"
+        done
+        say built "$enso"
+    else
+        say SKIPPED "no enso checkout at $enso (set ENSO=…)"
+    fi
+fi
+
+# Write the theme everywhere, now that everything includes it.
+if command -v enso-ctl >/dev/null; then
+    echo "theme"
+    enso-ctl theme apply | sed 's/^/  /'
+fi
