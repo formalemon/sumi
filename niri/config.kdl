@@ -5,7 +5,9 @@
 include "outputs.kdl"    // monitors
 include "input.kdl"      // keyboard, touchpad, mouse
 include "layout.kdl"     // gaps, column widths, ring and shadow geometry
-include "theme.kdl"      // every colour, and nothing else
+include "theme.kdl"      // colours: the fallback palette
+// Colours of the active enso theme, rewritten by `enso-ctl theme set`.
+include optional=true "~/.local/state/enso/niri.kdl"
 include "rules.kdl"      // window and layer rules
 include "session.kdl"    // cursor, screenshots, overlays
 include "autostart.kdl"  // the enso desktop

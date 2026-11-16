@@ -1,6 +1,7 @@
 // Colours — Rosé Pine Moon, the palette enso uses by default.
-// This is the only file that names a colour: to follow another enso theme,
-// swap the values here (`enso-ctl theme show <id>` prints a palette).
+// These are the colours before enso has had a say. `enso-ctl theme set`
+// writes the active theme's over them (see the include in config.kdl), so
+// niri follows theme switches by itself.
 //
 //   base  #232136   overlay        #393552   iris  #c4a7e7
 //   love  #eb6f92   highlight-med  #44415a   foam  #9ccfd8

@@ -12,7 +12,7 @@ niri/                 the compositor
   outputs.kdl           monitors
   input.kdl             keyboard, touchpad, mouse
   layout.kdl            gaps, column widths, ring and shadow geometry
-  theme.kdl             every colour, and nothing else
+  theme.kdl             fallback colours; enso-ctl supplies the live ones
   rules.kdl             window and layer rules
   session.kdl           cursor, screenshots, overlays
   autostart.kdl         what starts with niri
@@ -56,6 +56,6 @@ done
 - **Wallpaper:** drop a picture in `enso/wallpapers/` and name it in
   `enso/config.toml`, per theme if you like. `enso-wall list` shows which
   theme gets which.
-- **Colours:** `niri/theme.kdl` is the only niri file that names a colour.
-  enso follows `enso-ctl theme set <id>` by itself; niri does not yet, so
-  copy the new palette's values there (`enso-ctl theme show <id>`).
+- **Colours:** `enso-ctl theme set <id>` recolours enso and niri together.
+  niri picks the palette up from `~/.local/state/enso/niri.kdl`, which
+  enso-ctl writes; `niri/theme.kdl` is the fallback until it exists.
