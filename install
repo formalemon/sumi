@@ -3,7 +3,7 @@
 # right is left alone, and nothing of yours is overwritten.
 #
 #   ./install          link the configs, make the directories they expect,
-#                      fetch the cursor theme
+#                      fetch the cursor theme and the fonts
 #   ./install --enso   also build enso (from ~/dev/enso, or $ENSO) and put
 #                      its tools on PATH
 
@@ -14,11 +14,17 @@ config=${XDG_CONFIG_HOME:-$HOME/.config}
 state=${XDG_STATE_HOME:-$HOME/.local/state}
 data=${XDG_DATA_HOME:-$HOME/.local/share}
 
-# The cursor: Bibata Modern Ice, from its author's own release — no package.
-# Pinned and checked, so a run today and a run in a year fetch the same
-# thing. To move to a newer release, change both lines and run again.
+# What comes from its authors' own releases rather than a package: the
+# cursor, Bibata Modern Ice, and the fonts, Google Sans Flex (the interface)
+# and Google Sans Code (the terminal). Each is pinned and checked, so a run
+# today and a run in a year fetch the same thing. To move to a newer
+# release, change its two lines and run again.
 bibata_release=v2.0.7
 bibata_sha256=a68cae60c4dc706350e194ebc91c5fe48bc7bc9d59e119555834a2a7ee5078ef
+flex_release=v5.000
+flex_sha256=c20b00878dd801d1bfc06d771732447940c7255bf94cf538ce0102c7fb06fa85
+code_release=v7.001
+code_sha256=eebba2a438882396e8530cad6d6cb80182b0afb6e9e0ad07b7340359a53ba2e9
 
 say()  { printf '  %-10s %s\n' "$1" "$2"; }
 
@@ -51,46 +57,57 @@ import() {
     fi
 }
 
-# cursor <theme>: fetch a Bibata theme into ~/.local/share/icons, unless
-# the release pinned above is already there. A theme of that name put there
-# some other way is left alone.
-cursor() {
-    local name=$1 dest=$data/icons/$1
+# fetch <dest> <release> <url> <sha256> [<top>]: put what a release archive
+# holds at <dest>, unless that release is already there. The archive must
+# hold only <top>/ when one is named, or only plain files when not. What is
+# at <dest> but was put there some other way is left alone. Says `fetched`
+# when it fetched, so the caller can tell.
+fetched=0
+fetch() {
+    local dest=$1 release=$2 url=$3 sha256=$4 top=${5:-}
     local stamp=$dest/.sumi-release
     if [[ -d $dest && ! -f $stamp ]]; then
         say ok "$dest (not sumi's; left alone)"
         return
-    elif [[ -f $stamp && $(<"$stamp") == "$bibata_release" ]]; then
+    elif [[ -f $stamp && $(<"$stamp") == "$release" ]]; then
         say ok "$dest"
         return
     fi
     local tmp
     tmp=$(mktemp -d)
-    local archive=$tmp/$name.tar.xz
-    if ! curl -fsSL --proto '=https' -o "$archive" \
-        "https://github.com/ful1e5/Bibata_Cursor/releases/download/$bibata_release/$name.tar.xz"; then
+    local archive=$tmp/${url##*/}
+    if ! curl -fsSL --proto '=https' -o "$archive" "$url"; then
         rm -rf "$tmp"
-        say FAILED "could not download $name $bibata_release"
+        say FAILED "could not download ${url##*/}"
         return
     fi
-    if ! printf '%s  %s\n' "$bibata_sha256" "$archive" | sha256sum --check --status; then
+    if ! printf '%s  %s\n' "$sha256" "$archive" | sha256sum --check --status; then
         rm -rf "$tmp"
-        say FAILED "$name $bibata_release does not match its checksum; nothing installed"
+        say FAILED "${url##*/} does not match its checksum; nothing installed"
         return
     fi
-    # One directory, named for the theme, is all the archive may hold.
-    if tar -tJf "$archive" | grep -v "^$name/" >/dev/null; then
+    # bsdtar (pacman's own libarchive) reads tarballs and zips alike.
+    local strays
+    if [[ -n $top ]]; then
+        strays=$(bsdtar -tf "$archive" | grep -v "^$top/" || true)
+    else
+        strays=$(bsdtar -tf "$archive" | grep -E '/|^\.' || true)
+    fi
+    if [[ -n $strays ]]; then
         rm -rf "$tmp"
-        say FAILED "$name $bibata_release holds more than $name/; nothing installed"
+        say FAILED "${url##*/} holds more than it should; nothing installed"
         return
     fi
-    tar -xJf "$archive" -C "$tmp" --no-same-owner --no-same-permissions
-    printf '%s\n' "$bibata_release" > "$tmp/$name/.sumi-release"
-    mkdir -p "$data/icons"
+    mkdir -p "$tmp/out"
+    bsdtar -xf "$archive" -C "$tmp/out" --no-same-owner --no-same-permissions
+    local unpacked=$tmp/out${top:+/$top}
+    printf '%s\n' "$release" > "$unpacked/.sumi-release"
+    mkdir -p "$(dirname "$dest")"
     rm -rf "$dest"
-    mv "$tmp/$name" "$dest"
+    mv "$unpacked" "$dest"
     rm -rf "$tmp"
-    say fetched "$dest ($bibata_release)"
+    fetched=1
+    say fetched "$dest ($release)"
 }
 
 echo "configs"
@@ -108,8 +125,18 @@ for dir in "$HOME/Pictures/Screenshots" "$state/bash" "$state/python" "$HOME/.lo
     mkdir -p "$dir" && say ok "$dir"
 done
 
-echo "cursor"
-cursor Bibata-Modern-Ice
+echo "cursor and fonts"
+fetch "$data/icons/Bibata-Modern-Ice" "$bibata_release" \
+    "https://github.com/ful1e5/Bibata_Cursor/releases/download/$bibata_release/Bibata-Modern-Ice.tar.xz" \
+    "$bibata_sha256" Bibata-Modern-Ice
+fetch "$data/fonts/GoogleSansFlex" "$flex_release" \
+    "https://github.com/googlefonts/googlesans-flex/releases/download/$flex_release/GoogleSansFlex-$flex_release.zip" \
+    "$flex_sha256"
+fetch "$data/fonts/GoogleSansCode" "$code_release" \
+    "https://github.com/googlefonts/googlesans-code/releases/download/$code_release/GoogleSansCode-$code_release.zip" \
+    "$code_sha256"
+# New fonts are only seen once fontconfig's cache knows them.
+((fetched)) && fc-cache "$data/fonts" && say cached "$data/fonts"
 
 echo "colours from enso"
 # GTK 3: file choosers and dialogs. GTK 4 and libadwaita too, ready for the

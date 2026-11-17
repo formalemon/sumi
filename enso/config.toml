@@ -2,6 +2,11 @@
 # enso's config.example.toml lists every option.
 
 [appearance]
+# Google Sans: Flex for the interface, Code for the terminal. `install`
+# fetches both into ~/.local/share/fonts; enso draws with them, and
+# `enso-ctl theme apply` gives them to fontconfig and GTK as well.
+font = "Google Sans Flex"
+mono_font = "Google Sans Code"
 # The pointer, everywhere: Niri, GTK, and whatever asks for no theme.
 # `install` fetches Bibata Modern Ice into ~/.local/share/icons;
 # `enso-ctl cursor list` shows what else there is.

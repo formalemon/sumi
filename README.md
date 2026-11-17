@@ -23,8 +23,8 @@ bash/                 the shell, pure bash: nothing to install
   inputrc               editing: Tab cycles completions, Ctrl+arrows by word
   prompt                path, git state, time taken, exit status — see below
   aliases               shorthands
-fontconfig/           sans-serif and monospace are Adwaita Sans and Mono, as
-                      in enso, with Symbols Nerd Font behind them
+fontconfig/           sans-serif and monospace: the fonts enso is set to
+                      (enso writes them), then Adwaita for what they lack
 alacritty/            the terminal: padding, translucency, a blinking bar
                       cursor; colours (the cursor in the accent) from enso
 nvim/                 Neovim: line numbers, rose-pine/neovim, no background of its own
@@ -32,7 +32,7 @@ firefox/              Firefox's interface, linked into each profile
   userChrome.css        imports enso's colours; rules of your own below
   user.js               the preference that lets it be styled
 enso/                 the enso suite
-  config.toml           settings: the cursor, the wallpaper
+  config.toml           settings: the fonts, the cursor, the wallpaper
   wallpapers/           pictures enso-wall shows
 ```
 
@@ -46,15 +46,20 @@ git clone https://github.com/formalemon/sumi ~/dev/sumi
 
 `install` links each directory into `~/.config` (and the two bash files into
 `~`, the only names bash reads), makes the directories the configs expect
-(`~/Pictures/Screenshots`), fetches the cursor theme, and has GTK 3, GTK 4,
-and Firefox import the colours enso writes. It can be run again at any time;
-it never overwrites a file that is not its own.
+(`~/Pictures/Screenshots`), fetches the cursor and the fonts, and has GTK 3,
+GTK 4, and Firefox import the colours enso writes. It can be run again at any
+time; it never overwrites a file that is not its own.
 
-The cursor, Bibata Modern Ice, comes from [its own GitHub
-release](https://github.com/ful1e5/Bibata_Cursor/releases), not a package:
-`install` downloads the pinned version, checks it against the SHA-256 written
-in the script, and unpacks it into `~/.local/share/icons`. enso then tells
-every program to use it (`cursor` in `enso/config.toml`).
+The cursor and the fonts come from their authors' own GitHub releases, not
+packages: [Bibata Modern Ice](https://github.com/ful1e5/Bibata_Cursor/releases)
+into `~/.local/share/icons`, and Google Sans —
+[Flex](https://github.com/googlefonts/googlesans-flex/releases) for the
+interface, [Code](https://github.com/googlefonts/googlesans-code/releases)
+for the terminal, both under the SIL Open Font License — into
+`~/.local/share/fonts`. `install` downloads the pinned versions, checks each
+against the SHA-256 written in the script, and unpacks it with `bsdtar`
+(pacman's own libarchive). enso then tells every program to use them
+(`font`, `mono_font`, and `cursor` in `enso/config.toml`).
 
 ## Keys worth knowing
 
