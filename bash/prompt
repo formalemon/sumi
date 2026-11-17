@@ -1,31 +1,210 @@
-# The prompt: where you are, the git branch, and a mark that turns red when
-# the last command failed. Colours are the terminal's own, so the prompt
-# follows `enso-ctl theme set` (blue is foam, cyan rose, magenta iris,
-# red love).
+# The prompt: a line saying where you are and how the last command went,
+# then the mark you type after.
 #
-#   ~/dev/enso  main *
+#   ~/dev/enso   main ⇡1 +2 !1 ?3   12s
 #   ❯
+#
+#   path       foam, bold; trimmed to its last three directories
+#   branch    rose; ⇡⇣ ahead/behind (foam), +staged (pine), !changed
+#              (gold), ?untracked and ≡stashes (muted), ✖conflicts (love),
+#              and a rebase or merge under way (love)
+#   took       gold: how long the last command ran, once it is over 2s
+#   ✘          love: its exit status — or signal — when it failed
+#   ❯          iris, love after a failure
+#
+# Also shown when they apply: user@host over SSH, the Python virtualenv
+# (gold), and background jobs (subtle).
+#
+# The colours are the terminal's sixteen, so the prompt follows
+# `enso-ctl theme set` with everything else (blue is foam, cyan rose,
+# magenta iris, green pine, yellow gold, red love, bright black muted).
+# Glyphs come from Symbols Nerd Font, as enso's own do. Pure bash: outside a
+# repository nothing is run at all, inside one a single `git status`.
 
-if [[ -r /usr/share/git/completion/git-prompt.sh ]]; then
-    . /usr/share/git/completion/git-prompt.sh
-    GIT_PS1_SHOWDIRTYSTATE=1      # * unstaged, + staged
-    GIT_PS1_SHOWUNTRACKEDFILES=1  # % untracked
-    GIT_PS1_SHOWUPSTREAM=auto     # < behind, > ahead
+# Escapes wrapped so readline knows they take no room. They go in through
+# variables, not into PS1 itself, so a branch or directory name is only
+# ever text — never a prompt escape or an expansion.
+__p_c() { printf -v "$1" '\001\e[%sm\002' "$2"; }
+__p_c __p_reset 0
+__p_c __p_dim 2
+__p_c __p_path '1;34'
+__p_c __p_rose 36
+__p_c __p_iris 35
+__p_c __p_love 31
+__p_c __p_pine 32
+__p_c __p_gold 33
+__p_c __p_foam 34
+__p_c __p_muted 90
+unset -f __p_c
+
+# Nerd Font glyphs, by code point: branch, clock, Python, gear.
+__p_branch=$'\ue0a0' __p_clock=$'\uf017' __p_python=$'\ue73c' __p_jobs=$'\uf013'
+
+# Python virtualenvs: the prompt names them itself.
+export VIRTUAL_ENV_DISABLE_PROMPT=1
+
+# How long a command ran: PS0 is shown just before it runs, and `${ …; }`
+# (bash 5.3) runs the stamp in this shell without starting another. Older
+# bash goes without durations.
+if ((BASH_VERSINFO[0] > 5 || (BASH_VERSINFO[0] == 5 && BASH_VERSINFO[1] >= 3))); then
+    __prompt_stamp() { __prompt_started=${EPOCHREALTIME//[!0-9]/}; }
+    # Ahead of whatever the system put there (systemd marks each command).
+    [[ ${PS0:-} == *__prompt_stamp* ]] || PS0='${ __prompt_stamp; }'"${PS0:-}"
+    __prompt_timed=1
 else
-    __git_ps1() { :; }
+    __prompt_timed=0
 fi
 
+# The first prompt, and the one after `clear`, need no blank line above.
+__prompt_fresh=1
+
+# `~/a/b/c/d/e` as `…/c/d/e`.
+__prompt_path() {
+    local path=${PWD/#"$HOME"/\~} rest
+    rest=${path#*/*/*/*/}
+    if [[ $rest != "$path" && $path == [~/]* ]]; then
+        local tail=${path%/*/*/*}
+        path="…${path:${#tail}}"
+    fi
+    __prompt_line+="${__p_path}${path}${__p_reset}"
+}
+
+# The repository around $PWD, found by looking rather than by running git.
+__prompt_git() {
+    local root=$PWD
+    until [[ -e $root/.git ]]; do
+        [[ -n $root ]] || return 0
+        root=${root%/*}
+    done
+
+    local status
+    status=$(git --no-optional-locks status --porcelain=v2 --branch --show-stash 2>/dev/null) ||
+        return 0
+    local head='' oid='' ahead=0 behind=0 staged=0 changed=0 untracked=0 conflicts=0 stash=0
+    local line _
+    while IFS= read -r line; do
+        case $line in
+            '# branch.head '*) head=${line#'# branch.head '} ;;
+            '# branch.oid '*) oid=${line#'# branch.oid '} ;;
+            '# branch.ab '*)
+                read -r _ _ ahead behind <<<"$line"
+                ahead=${ahead#+} behind=${behind#-}
+                ;;
+            '# stash '*) stash=${line#'# stash '} ;;
+            [12]' '*)
+                [[ ${line:2:1} != . ]] && ((++staged))
+                [[ ${line:3:1} != . ]] && ((++changed))
+                ;;
+            'u '*) ((++conflicts)) ;;
+            '? '*) ((++untracked)) ;;
+        esac
+    done <<<"$status"
+    [[ $head == '(detached)' ]] && head="@${oid:0:7}"
+
+    # A rebase or merge under way, from the files git leaves while it is.
+    local dir=$root/.git op=''
+    if [[ -f $dir ]]; then
+        read -r _ dir <"$dir"
+        [[ $dir == /* ]] || dir=$root/$dir
+    fi
+    if [[ -d $dir/rebase-merge || -d $dir/rebase-apply ]]; then op=rebasing
+    elif [[ -f $dir/MERGE_HEAD ]]; then op=merging
+    elif [[ -f $dir/CHERRY_PICK_HEAD ]]; then op=picking
+    elif [[ -f $dir/REVERT_HEAD ]]; then op=reverting
+    elif [[ -f $dir/BISECT_LOG ]]; then op=bisecting
+    fi
+
+    __prompt_line+="  ${__p_rose}${__p_branch} ${head}${__p_reset}"
+    ((ahead)) && __prompt_line+=" ${__p_foam}⇡${ahead}${__p_reset}"
+    ((behind)) && __prompt_line+=" ${__p_foam}⇣${behind}${__p_reset}"
+    ((conflicts)) && __prompt_line+=" ${__p_love}✖${conflicts}${__p_reset}"
+    ((staged)) && __prompt_line+=" ${__p_pine}+${staged}${__p_reset}"
+    ((changed)) && __prompt_line+=" ${__p_gold}!${changed}${__p_reset}"
+    ((untracked)) && __prompt_line+=" ${__p_muted}?${untracked}${__p_reset}"
+    ((stash)) && __prompt_line+=" ${__p_muted}≡${stash}${__p_reset}"
+    [[ -n $op ]] && __prompt_line+=" ${__p_love}${op}${__p_reset}"
+    return 0
+}
+
+# 75 → 1m 15s; under 2s says nothing.
+__prompt_took() {
+    local ms=$1 out
+    ((ms < 2000)) && return 0
+    local s=$((ms / 1000))
+    if ((s >= 3600)); then out="$((s / 3600))h $((s % 3600 / 60))m"
+    elif ((s >= 60)); then out="$((s / 60))m $((s % 60))s"
+    else out="${s}s"
+    fi
+    __prompt_line+="  ${__p_gold}${__p_clock} ${out}${__p_reset}"
+}
+
 __prompt() {
-    local status=$?
-    local reset='\[\e[0m\]' dim='\[\e[2m\]'
-    local mark='\[\e[35m\]'
-    ((status)) && mark='\[\e[31m\]'
-    # The machine's name only when it is not this one.
-    local where=''
-    [[ -n $SSH_CONNECTION ]] && where="${dim}\u@\h${reset} "
-    PS1="\n${where}\[\e[1;34m\]\w${reset}$(__git_ps1 "  \[\e[36m\]%s${reset}")\n${mark}❯${reset} "
+    local status=$? exit=$?
+    # Whether a command ran since the last prompt: an empty Enter, or ^C on
+    # an empty line, leaves the last one's status and time where they were.
+    local ran=1 elapsed=0
+    if ((__prompt_timed)); then
+        if [[ -n ${__prompt_started:-} ]]; then
+            elapsed=$(((${EPOCHREALTIME//[!0-9]/} - __prompt_started) / 1000))
+        else
+            ran=0
+        fi
+        __prompt_started=
+    fi
+    ((ran)) || status=0
+
+    # Output that did not end its line keeps it, marked with a dim ⏎, and
+    # the prompt still starts on a line of its own (zsh's PROMPT_SP).
+    printf '\e[2m⏎\e[0m%*s\r\e[K' "$((${COLUMNS:-80} - 1))" ''
+    ((__prompt_fresh)) || printf '\n'
+    __prompt_fresh=0
+    # The window's title: where this shell is.
+    printf '\e]2;%s\a' "${PWD/#"$HOME"/\~}"
+
+    __prompt_line=''
+    [[ -n ${SSH_CONNECTION:-} ]] && __prompt_line+="${__p_dim}${USER}@${HOSTNAME%%.*}${__p_reset} "
+    __prompt_path
+    __prompt_git
+    [[ -n ${VIRTUAL_ENV:-} ]] && __prompt_line+="  ${__p_gold}${__p_python} ${VIRTUAL_ENV##*/}${__p_reset}"
+    local jobs
+    if ((__prompt_timed)); then jobs=${ jobs -p; }; else jobs=$(jobs -p); fi
+    if [[ -n $jobs ]]; then
+        jobs=${jobs//[!$'\n']/}
+        __prompt_line+="  ${__p_dim}${__p_jobs} $((${#jobs} + 1))${__p_reset}"
+    fi
+    ((ran)) && __prompt_took "$elapsed"
+    if ((status)); then
+        local why=$status
+        case $status in
+            130) why=INT ;;
+            137) why=KILL ;;
+            141) why=PIPE ;;
+            143) why=TERM ;;
+            148) why=STOP ;;
+        esac
+        __prompt_line+="  ${__p_love}✘ ${why}${__p_reset}"
+        __prompt_mark="${__p_love}❯${__p_reset}"
+    else
+        __prompt_mark="${__p_iris}❯${__p_reset}"
+    fi
+
     # Write each command to the history file as it is run.
     history -a
+    # The hooks after this one see the command's own status.
+    return "$exit"
 }
-PROMPT_COMMAND=__prompt
-PS2='\[\e[2m\]…\[\e[0m\] '
+
+# This hook first, while $? is still the command's; then what the system
+# hooks in — systemd's command marks — except the stock `user@host:path`
+# window title from /etc/bash.bashrc, which this prompt's replaces.
+__prompt_hooks=(__prompt)
+for __prompt_hook in "${PROMPT_COMMAND[@]}"; do
+    case $__prompt_hook in
+        '' | __prompt | *'\033]0;'* | *'\033_'*) ;;
+        *) __prompt_hooks+=("$__prompt_hook") ;;
+    esac
+done
+PROMPT_COMMAND=("${__prompt_hooks[@]}")
+unset __prompt_hooks __prompt_hook
+PS1='${__prompt_line}\n${__prompt_mark} '
+PS2="${__p_dim}…${__p_reset} "

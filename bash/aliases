@@ -1,10 +1,12 @@
 # Shorthands.
 
 # ── Looking around ──────────────────────────────────────────────────
-alias ls='ls --color=auto --group-directories-first'
-alias ll='ls -lh'
-alias la='ls -lAh'
-alias lt='ls -lhtr'                 # newest last
+# Directories first, numbers in order (2 before 10), names clickable in
+# Alacritty, and dates the way the bar writes them.
+alias ls='ls --color=auto --group-directories-first --hyperlink=auto -v'
+alias ll="ls -lh --time-style='+%-d %b %H:%M'"
+alias la='ll -A'
+alias lt='ll -tr'                   # newest last
 alias grep='grep --color=auto'
 alias diff='diff --color=auto'
 alias ip='ip -color=auto'
@@ -47,5 +49,7 @@ alias theme='enso-ctl theme'
 # ── Small tools ─────────────────────────────────────────────────────
 alias path='echo "$PATH" | tr ":" "\n"'
 alias reload='. ~/.bashrc'
+# A clean screen, the prompt at its very top.
+alias clear='__prompt_fresh=1; command clear'
 # Make a directory and step into it.
 mkcd() { mkdir -p -- "$1" && cd -- "$1"; }

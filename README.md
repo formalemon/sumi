@@ -14,21 +14,25 @@ niri/                 the compositor
   layout.kdl            gaps, column widths, ring and shadow geometry
   theme.kdl             fallback colours; enso-ctl supplies the live ones
   rules.kdl             window and layer rules
-  session.kdl           cursor, screenshots, overlays
+  session.kdl           cursor behaviour, screenshots, overlays
   autostart.kdl         what starts with niri
   binds.kdl             keys
-bash/                 the shell
-  profile               login shells: PATH, editor      (~/.bash_profile)
-  rc                    interactive shells: history, completion (~/.bashrc)
-  prompt                directory, git branch, a mark that reddens on failure
+bash/                 the shell, pure bash: nothing to install
+  profile               login shells: PATH, editor, INPUTRC (~/.bash_profile)
+  rc                    interactive shells: history, colours (~/.bashrc)
+  inputrc               editing: Tab cycles completions, Ctrl+arrows by word
+  prompt                path, git state, time taken, exit status — see below
   aliases               shorthands
-alacritty/            the terminal: padding, translucency; colours from enso
+fontconfig/           sans-serif and monospace are Adwaita Sans and Mono, as
+                      in enso, with Symbols Nerd Font behind them
+alacritty/            the terminal: padding, translucency, a blinking bar
+                      cursor; colours (the cursor in the accent) from enso
 nvim/                 Neovim: line numbers, rose-pine/neovim, no background of its own
 firefox/              Firefox's interface, linked into each profile
   userChrome.css        imports enso's colours; rules of your own below
   user.js               the preference that lets it be styled
 enso/                 the enso suite
-  config.toml           settings (the wallpaper, for now)
+  config.toml           settings: the cursor, the wallpaper
   wallpapers/           pictures enso-wall shows
 ```
 
@@ -42,9 +46,15 @@ git clone https://github.com/formalemon/sumi ~/dev/sumi
 
 `install` links each directory into `~/.config` (and the two bash files into
 `~`, the only names bash reads), makes the directories the configs expect
-(`~/Pictures/Screenshots`), and has GTK and Firefox import the colours enso
-writes. It can be run again at any time; it never overwrites a file that is
-not its own.
+(`~/Pictures/Screenshots`), fetches the cursor theme, and has GTK 3, GTK 4,
+and Firefox import the colours enso writes. It can be run again at any time;
+it never overwrites a file that is not its own.
+
+The cursor, Bibata Modern Ice, comes from [its own GitHub
+release](https://github.com/ful1e5/Bibata_Cursor/releases), not a package:
+`install` downloads the pinned version, checks it against the SHA-256 written
+in the script, and unpacks it into `~/.local/share/icons`. enso then tells
+every program to use it (`cursor` in `enso/config.toml`).
 
 ## Keys worth knowing
 
@@ -63,6 +73,28 @@ not its own.
   `enso/config.toml`, per theme if you like. `enso-wall list` shows which
   theme gets which.
 - **Colours:** `enso-ctl theme set <id>` recolours enso, niri, Alacritty,
-  Neovim, GTK dialogs, and Firefox together.
+  Neovim, GTK dialogs, Firefox, and the shell prompt together.
+- **Cursor:** `cursor` and `cursor_size` in `enso/config.toml`, or
+  `enso-ctl cursor set <name> [size]` to try one; `enso-ctl cursor` lists
+  what is installed. niri, GTK, and everything else follow at once.
   niri picks the palette up from `~/.local/state/enso/niri.kdl`, which
   enso-ctl writes; `niri/theme.kdl` is the fallback until it exists.
+
+## The prompt
+
+```
+~/dev/enso   main ⇡1 +2 !1 ?3   12s
+❯
+```
+
+The path (the last three directories of a deep one), then — in a git
+repository — the branch, commits ahead ⇡ and behind ⇣, staged +, changed !,
+untracked ?, stashed ≡, conflicts ✖, and a rebase or merge under way. After
+a command that took over two seconds, how long; after one that failed, ✘
+and its status or signal, and the ❯ turns red. Over SSH it starts with
+user@host; in a Python virtualenv, or with jobs in the background, it says
+so.
+
+Every colour is one of the terminal's sixteen, so it follows
+`enso-ctl theme set`. It is pure bash: outside a repository it runs nothing,
+inside one a single `git status` (a few milliseconds).

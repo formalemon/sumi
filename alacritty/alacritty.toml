@@ -9,9 +9,21 @@ import = ["~/.local/state/enso/alacritty.toml"]
 padding = { x = 14, y = 12 }
 # Spread what the cell grid leaves over evenly around it.
 dynamic_padding = true
-# A little of the wallpaper shows through; Neovim draws no background of
+# A hint of the wallpaper shows through; Neovim draws no background of
 # its own (see nvim/init.lua), so it is translucent with the terminal.
-opacity = 0.9
+opacity = 0.95
+
+# The cursor as a text field has it: a thin blinking bar between characters,
+# in the accent colour enso gives it (as enso's own carets are). It stays a
+# bar when the window loses focus, and rests after 5 seconds of quiet.
+# Neovim still shows a block in normal mode, and puts the bar back on exit.
+[cursor]
+style = { shape = "Beam", blinking = "On" }
+vi_mode_style = { shape = "Block", blinking = "Off" }
+blink_interval = 530
+blink_timeout = 5
+thickness = 0.15
+unfocused_hollow = false
 
 [[keyboard.bindings]]
 key = "Return"

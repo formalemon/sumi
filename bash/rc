@@ -1,5 +1,5 @@
 # Interactive shells (~/.bashrc links here). The pieces live beside this
-# file: prompt, aliases.
+# file: inputrc (editing and completion), prompt, aliases.
 
 [[ $- != *i* ]] && return
 
@@ -12,18 +12,22 @@ HISTSIZE=50000
 HISTFILESIZE=100000
 HISTCONTROL=ignoreboth:erasedups
 HISTIGNORE='ls:ll:la:cd:..:pwd:clear:history'
-shopt -s histappend cmdhist
+HISTTIMEFORMAT='%F %T  '            # `history` says when
+shopt -s histappend cmdhist lithist
 
 # ── Behaviour ───────────────────────────────────────────────────────
-shopt -s autocd cdspell dirspell globstar checkwinsize
-# Tab completion: ignore case, show the choices at once, in colour.
-bind 'set completion-ignore-case on'
-bind 'set show-all-if-ambiguous on'
-bind 'set colored-stats on'
-bind 'set mark-symlinked-directories on'
-# Up and Down search history for what is already typed.
-bind '"\e[A": history-search-backward'
-bind '"\e[B": history-search-forward'
+# A directory typed alone is gone to; small typos in one are forgiven; **
+# matches any depth.
+shopt -s autocd cdspell dirspell globstar extglob checkwinsize
+# Readline, for shells started before INPUTRC was in the environment.
+bind -f "$here/inputrc"
+
+# ── Colour ──────────────────────────────────────────────────────────
+# `ls`, completion, and grep in the terminal's own sixteen colours, which
+# `enso-ctl theme set` recolours.
+eval "$(dircolors -b)"
+export GREP_COLORS='mt=1;35:fn=34:ln=90:se=90'   # match iris, file foam
+export GCC_COLORS='error=01;31:warning=01;33:note=01;36:caret=01;35:locus=01:quote=01'
 
 [[ -r /usr/share/bash-completion/bash_completion ]] && . /usr/share/bash-completion/bash_completion
 

@@ -1,6 +1,13 @@
 # enso — settings for the whole suite. Anything left out keeps its default;
 # enso's config.example.toml lists every option.
 
+[appearance]
+# The pointer, everywhere: Niri, GTK, and whatever asks for no theme.
+# `install` fetches Bibata Modern Ice into ~/.local/share/icons;
+# `enso-ctl cursor list` shows what else there is.
+cursor = "Bibata-Modern-Ice"
+cursor_size = 24
+
 [wall]
 # Shown for every theme that has no picture of its own.
 default = "~/.config/enso/wallpapers/samurai_bebop.png"

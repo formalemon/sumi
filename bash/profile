@@ -4,5 +4,10 @@
 export PATH="$HOME/.local/bin:$PATH"
 export EDITOR=nvim VISUAL=nvim
 
+# Readline's settings for every program that uses it, not only bash.
+export INPUTRC="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/inputrc"
+# Python's history out of $HOME, beside bash's.
+export PYTHON_HISTORY="${XDG_STATE_HOME:-$HOME/.local/state}/python/history"
+
 # Interactive login shells get the interactive setup too.
 [[ -f ~/.bashrc ]] && . ~/.bashrc

@@ -2,7 +2,8 @@
 # sumi — put these dotfiles in place. Safe to run again: what is already
 # right is left alone, and nothing of yours is overwritten.
 #
-#   ./install          link the configs, make the directories they expect
+#   ./install          link the configs, make the directories they expect,
+#                      fetch the cursor theme
 #   ./install --enso   also build enso (from ~/dev/enso, or $ENSO) and put
 #                      its tools on PATH
 
@@ -11,6 +12,13 @@ set -euo pipefail
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 config=${XDG_CONFIG_HOME:-$HOME/.config}
 state=${XDG_STATE_HOME:-$HOME/.local/state}
+data=${XDG_DATA_HOME:-$HOME/.local/share}
+
+# The cursor: Bibata Modern Ice, from its author's own release — no package.
+# Pinned and checked, so a run today and a run in a year fetch the same
+# thing. To move to a newer release, change both lines and run again.
+bibata_release=v2.0.7
+bibata_sha256=a68cae60c4dc706350e194ebc91c5fe48bc7bc9d59e119555834a2a7ee5078ef
 
 say()  { printf '  %-10s %s\n' "$1" "$2"; }
 
@@ -43,24 +51,71 @@ import() {
     fi
 }
 
+# cursor <theme>: fetch a Bibata theme into ~/.local/share/icons, unless
+# the release pinned above is already there. A theme of that name put there
+# some other way is left alone.
+cursor() {
+    local name=$1 dest=$data/icons/$1
+    local stamp=$dest/.sumi-release
+    if [[ -d $dest && ! -f $stamp ]]; then
+        say ok "$dest (not sumi's; left alone)"
+        return
+    elif [[ -f $stamp && $(<"$stamp") == "$bibata_release" ]]; then
+        say ok "$dest"
+        return
+    fi
+    local tmp
+    tmp=$(mktemp -d)
+    local archive=$tmp/$name.tar.xz
+    if ! curl -fsSL --proto '=https' -o "$archive" \
+        "https://github.com/ful1e5/Bibata_Cursor/releases/download/$bibata_release/$name.tar.xz"; then
+        rm -rf "$tmp"
+        say FAILED "could not download $name $bibata_release"
+        return
+    fi
+    if ! printf '%s  %s\n' "$bibata_sha256" "$archive" | sha256sum --check --status; then
+        rm -rf "$tmp"
+        say FAILED "$name $bibata_release does not match its checksum; nothing installed"
+        return
+    fi
+    # One directory, named for the theme, is all the archive may hold.
+    if tar -tJf "$archive" | grep -v "^$name/" >/dev/null; then
+        rm -rf "$tmp"
+        say FAILED "$name $bibata_release holds more than $name/; nothing installed"
+        return
+    fi
+    tar -xJf "$archive" -C "$tmp" --no-same-owner --no-same-permissions
+    printf '%s\n' "$bibata_release" > "$tmp/$name/.sumi-release"
+    mkdir -p "$data/icons"
+    rm -rf "$dest"
+    mv "$tmp/$name" "$dest"
+    rm -rf "$tmp"
+    say fetched "$dest ($bibata_release)"
+}
+
 echo "configs"
 link niri       "$config/niri"
 link enso       "$config/enso"
 link alacritty  "$config/alacritty"
 link nvim       "$config/nvim"
+link fontconfig "$config/fontconfig"
 link bash/profile "$HOME/.bash_profile"
 link bash/rc      "$HOME/.bashrc"
 
 echo "directories"
 # niri saves screenshots here and does not make the directory itself.
-for dir in "$HOME/Pictures/Screenshots" "$state/bash" "$HOME/.local/bin"; do
+for dir in "$HOME/Pictures/Screenshots" "$state/bash" "$state/python" "$HOME/.local/bin"; do
     mkdir -p "$dir" && say ok "$dir"
 done
 
+echo "cursor"
+cursor Bibata-Modern-Ice
+
 echo "colours from enso"
-# GTK 3: file choosers and dialogs. GTK 4 only where it has been used.
+# GTK 3: file choosers and dialogs. GTK 4 and libadwaita too, ready for the
+# first program that uses them.
 import "$config/gtk-3.0/gtk.css" gtk-3.0.css
-[[ -d $config/gtk-4.0 ]] && import "$config/gtk-4.0/gtk.css" gtk-4.0.css
+import "$config/gtk-4.0/gtk.css" gtk-4.0.css
 # Firefox: every profile's interface, and the setting that lets it be styled.
 found=0
 for profile in "$config"/mozilla/firefox/*/ "$HOME"/.mozilla/firefox/*/; do
