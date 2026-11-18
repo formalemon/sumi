@@ -159,7 +159,7 @@ done
 # part of the niri config (niri/enso/<tool>.kdl), and whatever else it needs;
 # a tool not picked leaves no trace.
 
-tools=(bar launch ctl notify wall power lock files)
+tools=(bar launch ctl notify wall power lock files auth)
 declare -A about=(
     [bar]="status bar"
     [launch]="launcher for apps and files"
@@ -169,6 +169,7 @@ declare -A about=(
     [power]="power menu"
     [lock]="lock screen"
     [files]="file manager, and every app's file chooser"
+    [auth]="asks for your password, and Bluetooth codes"
 )
 remembered=$state/sumi/enso-tools
 previous=" $(tr '\n' ' ' 2>/dev/null <"$remembered" || true) "
@@ -197,7 +198,8 @@ ask() {
 echo "enso"
 if [[ -z $choice ]] && ((asking)); then
     echo "  The enso desktop: a bar, a launcher, a control center, notifications,"
-    echo "  a wallpaper, power menu, lock screen, and a file manager."
+    echo "  a wallpaper, power menu, lock screen, a file manager, and a prompt"
+    echo "  for passwords and pairing codes."
     read -rp "  Install them? [Y]es, all · [n]o · [s]ome " answer </dev/tty || answer=
     case ${answer,,} in
         '' | y | yes) choice=all ;;

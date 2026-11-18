@@ -1,0 +1,11 @@
+// enso-auth: asks for your password when the system needs it (polkit:
+// mounting internal disks, system settings, pkexec), and for codes when
+// pairing Bluetooth devices.
+
+spawn-at-startup "enso-auth"
+
+// What's asked here is for your eyes: leave it out of screen shares.
+layer-rule {
+    match namespace="^enso-auth$"
+    block-out-from "screencast"
+}
