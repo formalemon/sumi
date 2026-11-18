@@ -1,0 +1,106 @@
+/* Rosé Pine Moon, as enso's rose-pine-moon theme writes it: Firefox's
+   colours without enso. With enso, userChrome.css imports its file after
+   this one, and that wins. */
+
+:root {
+  /* The window: the tab strip and what frames the toolbars. */
+  --lwt-accent-color: #232136 !important;
+  --lwt-accent-color-inactive: #232136 !important;
+  --lwt-text-color: #e0def4 !important;
+  --toolbox-bgcolor: #232136 !important;
+  --toolbox-bgcolor-inactive: #232136 !important;
+  --toolbox-textcolor: #e0def4 !important;
+  --toolbox-textcolor-inactive: #908caa !important;
+  --tabpanel-background-color: #232136 !important;
+
+  /* Toolbars and the selected tab, one surface. */
+  --toolbar-bgcolor: #2a273f !important;
+  --toolbar-color: #e0def4 !important;
+  --toolbarbutton-icon-fill: #908caa !important;
+  --toolbarbutton-icon-fill-attention: #ea9a97 !important;
+  --toolbarbutton-hover-background: #393552 !important;
+  --toolbarbutton-active-background: #44415a !important;
+  --tab-selected-bgcolor: #2a273f !important;
+  --tab-selected-textcolor: #e0def4 !important;
+  --tab-hover-background-color: #393552 !important;
+  --tab-loading-fill: #ea9a97 !important;
+  --chrome-content-separator-color: #44415a !important;
+
+  /* The address bar and other fields. */
+  --toolbar-field-background-color: #232136 !important;
+  --toolbar-field-color: #e0def4 !important;
+  --toolbar-field-border-color: #44415a !important;
+  --toolbar-field-focus-background-color: #232136 !important;
+  --toolbar-field-focus-color: #e0def4 !important;
+  --toolbar-field-focus-border-color: #ea9a97 !important;
+  --urlbar-box-bgcolor: #393552 !important;
+  --urlbar-box-focus-bgcolor: #393552 !important;
+  --urlbar-box-hover-bgcolor: #44415a !important;
+  --urlbar-box-text-color: #e0def4 !important;
+  --urlbar-popup-url-color: #ea9a97 !important;
+  --urlbarView-highlight-background: #ea9a97 !important;
+  --urlbarView-highlight-color: #232136 !important;
+  --urlbarView-hover-background: #393552 !important;
+  --urlbarView-separator-color: #44415a !important;
+
+  /* Menus and panels. */
+  --arrowpanel-background: #393552 !important;
+  --arrowpanel-color: #e0def4 !important;
+  --arrowpanel-border-color: #44415a !important;
+  --arrowpanel-dimmed: #44415a !important;
+  --arrowpanel-dimmed-further: #56526e !important;
+  --panel-separator-color: #44415a !important;
+  --panel-disabled-color: #6e6a86 !important;
+  --menu-background-color: #393552 !important;
+  --menu-color: #e0def4 !important;
+  --menu-border-color: #44415a !important;
+  --menuitem-hover-background-color: #44415a !important;
+  --menuitem-disabled-color: #6e6a86 !important;
+
+  /* The sidebar. */
+  --sidebar-background-color: #232136 !important;
+  --sidebar-text-color: #e0def4 !important;
+  --sidebar-border-color: #44415a !important;
+
+  /* What is focused, chosen, or wrong. */
+  --focus-outline-color: #ea9a97 !important;
+  --color-accent-primary: #ea9a97 !important;
+  --color-accent-primary-hover: #ea9a97 !important;
+  --color-accent-primary-active: #ea9a97 !important;
+  --button-primary-bgcolor: #ea9a97 !important;
+  --button-primary-color: #232136 !important;
+  --attention-dot-color: #ea9a97 !important;
+  --link-color: #ea9a97 !important;
+  --text-color-error: #eb6f92 !important;
+}
+
+#navigator-toolbox {
+  background-color: #232136 !important;
+  color: #e0def4 !important;
+  border-bottom-color: #44415a !important;
+}
+
+#nav-bar,
+#PersonalToolbar,
+findbar {
+  background-color: #2a273f !important;
+  color: #e0def4 !important;
+}
+
+#sidebar-box,
+#sidebar-main {
+  background-color: #232136 !important;
+  color: #e0def4 !important;
+}
+
+menupopup,
+panel {
+  --panel-background: #393552 !important;
+  --panel-color: #e0def4 !important;
+  --panel-border-color: #44415a !important;
+}
+
+::selection {
+  background-color: #ea9a97;
+  color: #232136;
+}

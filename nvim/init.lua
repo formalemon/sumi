@@ -17,5 +17,6 @@ local theme = vim.fn.expand("~/.local/state/enso/nvim.lua")
 if vim.uv.fs_stat(theme) then
   dofile(theme)
 else
-  vim.cmd.colorscheme("rose-pine")
+  -- Without enso: Rosé Pine Moon, as sumi is dressed.
+  vim.cmd.colorscheme("rose-pine-moon")
 end

@@ -1,8 +1,10 @@
-# Alacritty. Colours come from enso: `enso-ctl theme set` rewrites the
-# imported file and running terminals follow. Anything set here wins over it.
+# Alacritty. Colours: Rosé Pine Moon from rose-pine-moon.toml here, then
+# enso's, if enso is installed (`enso-ctl theme set` rewrites it and running
+# terminals follow; without enso it's simply missing). Later imports win, and
+# anything set here wins over both.
 
 [general]
-import = ["~/.local/state/enso/alacritty.toml"]
+import = ["~/.config/alacritty/rose-pine-moon.toml", "~/.local/state/enso/alacritty.toml"]
 
 [window]
 # Breathing room between the text and the window's edge.

@@ -150,6 +150,7 @@ for profile in "$config"/mozilla/firefox/*/ "$HOME"/.mozilla/firefox/*/; do
     [[ -f ${profile}prefs.js || -f ${profile}times.json ]] || continue
     found=1
     link firefox/userChrome.css "${profile}chrome/userChrome.css"
+    link firefox/rose-pine-moon.css "${profile}chrome/rose-pine-moon.css"
     link firefox/user.js        "${profile}user.js"
 done
 ((found)) || say - "no Firefox profile yet; run again once Firefox has started"
