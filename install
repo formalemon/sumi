@@ -159,7 +159,7 @@ done
 # part of the niri config (niri/enso/<tool>.kdl), and whatever else it needs;
 # a tool not picked leaves no trace.
 
-tools=(bar launch ctl notify wall power lock files auth)
+tools=(bar launch ctl notify wall power lock files auth keyring)
 declare -A about=(
     [bar]="status bar"
     [launch]="launcher for apps and files"
@@ -170,6 +170,7 @@ declare -A about=(
     [lock]="lock screen"
     [files]="file manager, and every app's file chooser"
     [auth]="asks for your password, and Bluetooth codes"
+    [keyring]="keeps passwords and tokens, opened by your login"
 )
 remembered=$state/sumi/enso-tools
 previous=" $(tr '\n' ' ' 2>/dev/null <"$remembered" || true) "
@@ -198,8 +199,8 @@ ask() {
 echo "enso"
 if [[ -z $choice ]] && ((asking)); then
     echo "  The enso desktop: a bar, a launcher, a control center, notifications,"
-    echo "  a wallpaper, power menu, lock screen, a file manager, and a prompt"
-    echo "  for passwords and pairing codes."
+    echo "  a wallpaper, power menu, lock screen, a file manager, a prompt for"
+    echo "  passwords and pairing codes, and a keyring."
     read -rp "  Install them? [Y]es, all · [n]o · [s]ome " answer </dev/tty || answer=
     case ${answer,,} in
         '' | y | yes) choice=all ;;
@@ -240,6 +241,10 @@ for tool in "${tools[@]}"; do
     # The file chooser goes back to what it was before taking it away.
     if [[ $tool == files ]]; then
         "$link" portal disable | sed 's/^/  /' || true
+    fi
+    # Nor is it the keyring anymore (what's in it stays, sealed).
+    if [[ $tool == keyring ]]; then
+        "$link" disable | sed 's/^/  /' || true
     fi
     rm "$link"
     say removed "$link"
@@ -282,6 +287,10 @@ if has ctl; then
 fi
 
 # The file manager as every application's file chooser: its own set-up.
+if has keyring && [[ -x $bin/enso-keyring ]]; then
+    "$bin/enso-keyring" enable | sed 's/^/  /'
+fi
+
 if has files && [[ -x $bin/enso-files ]]; then
     if ((!asking)) || ask "Use enso-files as every app's file chooser?" y; then
         "$bin/enso-files" portal enable | sed 's/^/  /'

@@ -3,7 +3,7 @@
 Dotfiles for `ren@kiri`: Niri on Arch, dressed in Rosé Pine Moon — and,
 if you want it, the [enso](https://github.com/formalemon/enso) desktop (bar,
 launcher, control center, notifications, wallpaper, power menu, lock, file
-manager, password prompt). The dotfiles stand on their own: each enso tool adds its part only
+manager, password prompt, keyring). The dotfiles stand on their own: each enso tool adds its part only
 when it's picked at install.
 
 Each directory here is one directory of `~/.config`, linked into place.
@@ -22,6 +22,7 @@ niri/                 the compositor
   enso/                 what each enso tool adds: what it starts, its keys,
                         its rules — bar, launch, ctl, notify, wall, power,
                         lock, files, auth; included only for the tools picked
+                        (keyring has none: the session bus starts it)
 bash/                 the shell, pure bash: nothing to install
   profile               login shells: PATH, editor, INPUTRC (~/.bash_profile)
   rc                    interactive shells: history, colours (~/.bashrc)
@@ -59,7 +60,8 @@ question per tool, your last answers the defaults. For the tools picked it
 builds them from `~/dev/enso` (or `$ENSO`) onto `PATH`, links `enso/`, writes
 `~/.local/state/sumi/niri-enso.kdl` (the list of `niri/enso/` parts niri
 includes), has GTK import the control center's colours, and lets enso-files
-set itself up as every app's file chooser (`enso-files portal enable`). Tools
+set itself up as every app's file chooser (`enso-files portal enable`) and
+enso-keyring as the session's keyring (`enso-keyring enable`). Tools
 dropped on a later run are taken away again. It can be run again at any
 time; it never overwrites a file that is not its own.
 
