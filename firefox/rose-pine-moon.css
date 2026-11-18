@@ -1,6 +1,7 @@
-/* Rosé Pine Moon, as enso's rose-pine-moon theme writes it: Firefox's
-   colours without enso. With enso, userChrome.css imports its file after
-   this one, and that wins. */
+/* Rosé Pine Moon: Firefox's colours without enso. Written by theme/render
+   from theme/rose-pine-moon.toml and theme/templates/firefox.css; change
+   those, not this. With enso, userChrome.css imports its file after this
+   one, and that wins. */
 
 :root {
   /* The window: the tab strip and what frames the toolbars. */

@@ -1,0 +1,26 @@
+# sumi's colours: Rosé Pine Moon, in enso's own theme format, so the two
+# agree without either needing the other. theme/render writes the static
+# colour files from it (alacritty, Firefox, niri), which every program uses
+# when enso isn't installed. With enso, install compares it with enso's
+# built-in theme of the same name, and registers it as the theme `sumi` if
+# they differ — so enso never quietly puts its own look over this one.
+
+name = "Rosé Pine Moon"
+variant = "dark"
+
+[colors]
+base = "#232136"
+surface = "#2a273f"
+overlay = "#393552"
+muted = "#6e6a86"
+subtle = "#908caa"
+text = "#e0def4"
+love = "#eb6f92"
+gold = "#f6c177"
+rose = "#ea9a97"
+pine = "#3e8fb0"
+foam = "#9ccfd8"
+iris = "#c4a7e7"
+highlight-low = "#2a283e"
+highlight-med = "#44415a"
+highlight-high = "#56526e"

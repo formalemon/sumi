@@ -1,6 +1,8 @@
-// Colours — Rosé Pine Moon. With enso-ctl installed, the active enso
-// theme's colours are written over these (niri/enso/ctl.kdl), so niri
-// follows theme switches by itself.
+// Colours — Rosé Pine Moon. Written by theme/render from
+// theme/rose-pine-moon.toml and theme/templates/niri.kdl; change those,
+// not this. With enso-ctl installed, the active enso theme's colours are
+// written over these (niri/enso/ctl.kdl), so niri follows theme switches
+// by itself.
 //
 //   base  #232136   overlay        #393552   iris  #c4a7e7
 //   love  #eb6f92   highlight-med  #44415a   foam  #9ccfd8

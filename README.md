@@ -15,7 +15,8 @@ niri/                 the compositor
     outputs.kdl           monitors
     input.kdl             keyboard, touchpad, mouse
     layout.kdl            gaps, column widths, ring and shadow geometry
-    theme.kdl             colours (enso-ctl, if picked, writes the live ones)
+    theme.kdl             colours, from theme/ (enso-ctl, if picked, writes
+                          the live ones)
     rules.kdl             window and layer rules
     session.kdl           cursor behaviour, screenshots, overlays
     binds.kdl             keys (volume through wpctl)
@@ -32,11 +33,18 @@ bash/                 the shell, pure bash: nothing to install
 fontconfig/           sans-serif and monospace: the fonts enso is set to
                       (enso writes them), then Adwaita for what they lack
 alacritty/            the terminal: padding, translucency, a blinking bar
-                      cursor; colours (the cursor in the accent) from enso
+                      cursor; colours from theme/, then enso's over them
 nvim/                 Neovim: line numbers, rose-pine/neovim, no background of its own
 firefox/              Firefox's interface, linked into each profile
-  userChrome.css        imports enso's colours; rules of your own below
+  userChrome.css        imports the colours (theme/'s, then enso's from
+                        enso.css, which install links to where enso writes
+                        them); rules of your own below
   user.js               the preference that lets it be styled
+theme/                the colours, without enso
+  rose-pine-moon.toml   the palette, in enso's own theme format
+  templates/            alacritty, Firefox, and niri, colours by role
+  render                writes their colour files from the palette (install
+                        runs it; --check only looks)
 enso/                 enso's settings (linked only if a tool is picked)
   config.toml           the fonts, the cursor, the wallpaper
   wallpapers/           pictures enso-wall shows
@@ -96,7 +104,10 @@ With the enso tools (each key comes with its tool):
   `enso/config.toml`, per theme if you like. `enso-wall list` shows which
   theme gets which.
 - **Colours:** `enso-ctl theme set <id>` recolours enso, niri, Alacritty,
-  Neovim, GTK dialogs, Firefox, and the shell prompt together.
+  Neovim, GTK dialogs, Firefox, and the shell prompt together. Without
+  enso they are `theme/rose-pine-moon.toml`'s: change it and run
+  `theme/render` (or install). If it no longer matches enso's own
+  rose-pine-moon, install adds it to enso as the theme `sumi` and picks it.
 - **Cursor:** `cursor` and `cursor_size` in `enso/config.toml`, or
   `enso-ctl cursor set <name> [size]` to try one; `enso-ctl cursor` lists
   what is installed. niri, GTK, and everything else follow at once.

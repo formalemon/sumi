@@ -48,6 +48,36 @@ link() {
     fi
 }
 
+# point <where it belongs> <what it points to>: a link to a file outside
+# this repo, which may not exist yet (enso's, written once enso runs).
+point() {
+    local dest=$1 target=$2
+    if [[ -L $dest && $(readlink "$dest") == "$target" ]]; then
+        say ok "$dest"
+    elif [[ -e $dest || -L $dest ]]; then
+        say SKIPPED "$dest exists and is not this repo's; move it away and run again"
+    else
+        mkdir -p "$(dirname "$dest")"
+        ln -s "$target" "$dest"
+        say linked "$dest"
+    fi
+}
+
+# palette <theme toml>: its variant and colours, one `role #rrggbb` a line,
+# in order — enough to tell two themes apart, whatever else differs.
+palette() {
+    local line table=
+    while IFS= read -r line; do
+        if [[ $line =~ ^[[:space:]]*\[([^]]*)\] ]]; then
+            table=${BASH_REMATCH[1]}
+        elif [[ -z $table && $line =~ ^variant[[:space:]]*=[[:space:]]*\"([a-z]+)\" ]]; then
+            echo "variant ${BASH_REMATCH[1]}"
+        elif [[ $table == colors && $line =~ ^[[:space:]]*([a-z-]+)[[:space:]]*=[[:space:]]*\"(#[0-9a-fA-F]{6})\" ]]; then
+            echo "${BASH_REMATCH[1]} ${BASH_REMATCH[2],,}"
+        fi
+    done <"$1" | sort
+}
+
 # import <stylesheet> <generated enso file>: make the stylesheet, which is
 # yours to add to, bring in the colours enso writes.
 import() {
@@ -124,6 +154,10 @@ link fontconfig "$config/fontconfig"
 link bash/profile "$HOME/.bash_profile"
 link bash/rc      "$HOME/.bashrc"
 
+echo "colours"
+# The static colour files, from theme/rose-pine-moon.toml.
+"$here/theme/render"
+
 echo "directories"
 # niri saves screenshots here and does not make the directory itself.
 for dir in "$HOME/Pictures/Screenshots" "$state/bash" "$state/python" "$HOME/.local/bin"; do
@@ -151,6 +185,9 @@ for profile in "$config"/mozilla/firefox/*/ "$HOME"/.mozilla/firefox/*/; do
     found=1
     link firefox/userChrome.css "${profile}chrome/userChrome.css"
     link firefox/rose-pine-moon.css "${profile}chrome/rose-pine-moon.css"
+    # Where enso writes Firefox's colours, if it ever does: userChrome.css
+    # imports it by this name, so no home directory is written in it.
+    point "${profile}chrome/enso.css" "$state/enso/firefox.css"
     link firefox/user.js        "${profile}user.js"
 done
 ((found)) || say - "no Firefox profile yet; run again once Firefox has started"
@@ -295,6 +332,49 @@ fi
 if has files && [[ -x $bin/enso-files ]]; then
     if ((!asking)) || ask "Use enso-files as every app's file chooser?" y; then
         "$bin/enso-files" portal enable | sed 's/^/  /'
+    fi
+fi
+
+# sumi's palette, which enso shows too. The same as enso's built-in theme
+# of its name, there's nothing to do; different, it goes in as the theme
+# `sumi`, and is chosen — so enso never puts its own look over this one.
+if ((${#picked[@]})); then
+    echo "palette"
+    ours=$here/theme/rose-pine-moon.toml
+    theirs=$enso/crates/enso-core/themes/rose-pine-moon.toml
+    registered=$config/enso/themes/sumi.toml
+    if [[ ! -f $theirs ]]; then
+        say SKIPPED "no enso checkout to compare the palette with"
+    elif [[ $(palette "$ours") == "$(palette "$theirs")" ]]; then
+        say ok "enso's rose-pine-moon is sumi's palette"
+        if [[ -f $registered ]] && grep -q '^# Written by sumi' "$registered"; then
+            rm "$registered"
+            say removed "$registered (no longer different)"
+            if has ctl && [[ $("$bin/enso-ctl" theme current 2>/dev/null) == sumi ]]; then
+                "$bin/enso-ctl" theme set rose-pine-moon | sed 's/^/  /'
+            fi
+        fi
+    else
+        mkdir -p "$(dirname "$registered")"
+        {
+            echo "# Written by sumi's install from theme/rose-pine-moon.toml, which differs"
+            echo "# from enso's own rose-pine-moon; change that, and run install again."
+            sed -e '/^#/d' -e 's/^name = "\(.*\)"$/name = "\1 (sumi)"/' "$ours"
+        } >"$registered.tmp"
+        if [[ -f $registered ]] && cmp -s "$registered.tmp" "$registered"; then
+            rm "$registered.tmp"
+            say ok "$registered"
+        else
+            mv "$registered.tmp" "$registered"
+            say wrote "$registered"
+        fi
+        if has ctl && [[ -x $bin/enso-ctl ]]; then
+            if [[ $("$bin/enso-ctl" theme current 2>/dev/null) != sumi ]]; then
+                "$bin/enso-ctl" theme set sumi | sed 's/^/  /'
+            fi
+        else
+            say - "enso shows the theme \`sumi\` once it's chosen: theme = \"sumi\" in enso's config"
+        fi
     fi
 fi
 

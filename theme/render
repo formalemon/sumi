@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# theme/render — write sumi's static colour files from its palette.
+#
+#   theme/render           write the ones the palette changes
+#   theme/render --check   only say whether they are as it makes them
+#
+# The palette is theme/rose-pine-moon.toml, in enso's own theme format.
+# Each template in theme/templates names colours by their role — {{base}},
+# {{rose}}, and {{iris}}66 for one with alpha — and becomes the file it
+# makes with the palette's colours in their place. Needs nothing but bash.
+
+set -euo pipefail
+
+here=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+palette=$here/theme/rose-pine-moon.toml
+check=0
+case ${1:-} in
+    '') ;;
+    --check) check=1 ;;
+    *) echo "theme/render: unknown option $1" >&2; exit 2 ;;
+esac
+
+# The [colors] table: role = "#rrggbb".
+declare -A color
+table=
+while IFS= read -r line; do
+    if [[ $line =~ ^[[:space:]]*\[([^]]*)\] ]]; then
+        table=${BASH_REMATCH[1]}
+    elif [[ $table == colors && $line =~ ^[[:space:]]*([a-z-]+)[[:space:]]*=[[:space:]]*\"(#[0-9a-fA-F]{6})\" ]]; then
+        color[${BASH_REMATCH[1]}]=${BASH_REMATCH[2],,}
+    fi
+done <"$palette"
+((${#color[@]})) || { echo "theme/render: no colours in $palette" >&2; exit 1; }
+
+# Each template, and the file it makes.
+declare -A makes=(
+    [alacritty.toml]=alacritty/rose-pine-moon.toml
+    [firefox.css]=firefox/rose-pine-moon.css
+    [niri.kdl]=niri/core/theme.kdl
+)
+
+stale=0
+for template in alacritty.toml firefox.css niri.kdl; do
+    text=$(<"$here/theme/templates/$template")
+    for role in "${!color[@]}"; do
+        text=${text//"{{$role}}"/${color[$role]}}
+    done
+    if [[ $text == *"{{"* ]]; then
+        unknown=$(grep -o '{{[^}]*}}' <<<"$text" | sort -u | tr '\n' ' ')
+        echo "theme/render: $template names colours the palette hasn't: $unknown" >&2
+        exit 1
+    fi
+    out=${makes[$template]}
+    if [[ -f $here/$out && $(<"$here/$out") == "$text" ]]; then
+        printf '  %-10s %s\n' ok "$out"
+    elif ((check)); then
+        printf '  %-10s %s\n' STALE "$out (run theme/render)"
+        stale=1
+    else
+        printf '%s\n' "$text" >"$here/$out.tmp"
+        mv "$here/$out.tmp" "$here/$out"
+        printf '  %-10s %s\n' wrote "$out"
+    fi
+done
+exit "$stale"

@@ -1,0 +1,107 @@
+/* Rosé Pine Moon: Firefox's colours without enso. Written by theme/render
+   from theme/rose-pine-moon.toml and theme/templates/firefox.css; change
+   those, not this. With enso, userChrome.css imports its file after this
+   one, and that wins. */
+
+:root {
+  /* The window: the tab strip and what frames the toolbars. */
+  --lwt-accent-color: {{base}} !important;
+  --lwt-accent-color-inactive: {{base}} !important;
+  --lwt-text-color: {{text}} !important;
+  --toolbox-bgcolor: {{base}} !important;
+  --toolbox-bgcolor-inactive: {{base}} !important;
+  --toolbox-textcolor: {{text}} !important;
+  --toolbox-textcolor-inactive: {{subtle}} !important;
+  --tabpanel-background-color: {{base}} !important;
+
+  /* Toolbars and the selected tab, one surface. */
+  --toolbar-bgcolor: {{surface}} !important;
+  --toolbar-color: {{text}} !important;
+  --toolbarbutton-icon-fill: {{subtle}} !important;
+  --toolbarbutton-icon-fill-attention: {{rose}} !important;
+  --toolbarbutton-hover-background: {{overlay}} !important;
+  --toolbarbutton-active-background: {{highlight-med}} !important;
+  --tab-selected-bgcolor: {{surface}} !important;
+  --tab-selected-textcolor: {{text}} !important;
+  --tab-hover-background-color: {{overlay}} !important;
+  --tab-loading-fill: {{rose}} !important;
+  --chrome-content-separator-color: {{highlight-med}} !important;
+
+  /* The address bar and other fields. */
+  --toolbar-field-background-color: {{base}} !important;
+  --toolbar-field-color: {{text}} !important;
+  --toolbar-field-border-color: {{highlight-med}} !important;
+  --toolbar-field-focus-background-color: {{base}} !important;
+  --toolbar-field-focus-color: {{text}} !important;
+  --toolbar-field-focus-border-color: {{rose}} !important;
+  --urlbar-box-bgcolor: {{overlay}} !important;
+  --urlbar-box-focus-bgcolor: {{overlay}} !important;
+  --urlbar-box-hover-bgcolor: {{highlight-med}} !important;
+  --urlbar-box-text-color: {{text}} !important;
+  --urlbar-popup-url-color: {{rose}} !important;
+  --urlbarView-highlight-background: {{rose}} !important;
+  --urlbarView-highlight-color: {{base}} !important;
+  --urlbarView-hover-background: {{overlay}} !important;
+  --urlbarView-separator-color: {{highlight-med}} !important;
+
+  /* Menus and panels. */
+  --arrowpanel-background: {{overlay}} !important;
+  --arrowpanel-color: {{text}} !important;
+  --arrowpanel-border-color: {{highlight-med}} !important;
+  --arrowpanel-dimmed: {{highlight-med}} !important;
+  --arrowpanel-dimmed-further: {{highlight-high}} !important;
+  --panel-separator-color: {{highlight-med}} !important;
+  --panel-disabled-color: {{muted}} !important;
+  --menu-background-color: {{overlay}} !important;
+  --menu-color: {{text}} !important;
+  --menu-border-color: {{highlight-med}} !important;
+  --menuitem-hover-background-color: {{highlight-med}} !important;
+  --menuitem-disabled-color: {{muted}} !important;
+
+  /* The sidebar. */
+  --sidebar-background-color: {{base}} !important;
+  --sidebar-text-color: {{text}} !important;
+  --sidebar-border-color: {{highlight-med}} !important;
+
+  /* What is focused, chosen, or wrong. */
+  --focus-outline-color: {{rose}} !important;
+  --color-accent-primary: {{rose}} !important;
+  --color-accent-primary-hover: {{rose}} !important;
+  --color-accent-primary-active: {{rose}} !important;
+  --button-primary-bgcolor: {{rose}} !important;
+  --button-primary-color: {{base}} !important;
+  --attention-dot-color: {{rose}} !important;
+  --link-color: {{rose}} !important;
+  --text-color-error: {{love}} !important;
+}
+
+#navigator-toolbox {
+  background-color: {{base}} !important;
+  color: {{text}} !important;
+  border-bottom-color: {{highlight-med}} !important;
+}
+
+#nav-bar,
+#PersonalToolbar,
+findbar {
+  background-color: {{surface}} !important;
+  color: {{text}} !important;
+}
+
+#sidebar-box,
+#sidebar-main {
+  background-color: {{base}} !important;
+  color: {{text}} !important;
+}
+
+menupopup,
+panel {
+  --panel-background: {{overlay}} !important;
+  --panel-color: {{text}} !important;
+  --panel-border-color: {{highlight-med}} !important;
+}
+
+::selection {
+  background-color: {{rose}};
+  color: {{base}};
+}

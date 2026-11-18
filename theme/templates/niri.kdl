@@ -1,0 +1,51 @@
+// Colours — Rosé Pine Moon. Written by theme/render from
+// theme/rose-pine-moon.toml and theme/templates/niri.kdl; change those,
+// not this. With enso-ctl installed, the active enso theme's colours are
+// written over these (niri/enso/ctl.kdl), so niri follows theme switches
+// by itself.
+//
+//   base  {{base}}   overlay        {{overlay}}   iris  {{iris}}
+//   love  {{love}}   highlight-med  {{highlight-med}}   foam  {{foam}}
+
+layout {
+    // Behind everything: the desktop, until a wallpaper is drawn over it.
+    background-color "{{base}}"            // base
+
+    focus-ring {
+        active-color   "{{iris}}"          // iris
+        inactive-color "{{highlight-med}}"          // highlight-med
+        urgent-color   "{{love}}"          // love
+    }
+
+    border {
+        active-color   "{{iris}}"
+        inactive-color "{{highlight-med}}"
+        urgent-color   "{{love}}"
+    }
+
+    shadow {
+        color "#00000066"
+    }
+
+    tab-indicator {
+        active-color   "{{iris}}"
+        inactive-color "{{highlight-med}}"
+        urgent-color   "{{love}}"
+    }
+
+    insert-hint {
+        color "{{iris}}66"                 // iris, translucent
+    }
+}
+
+overview {
+    backdrop-color "{{base}}"              // base
+}
+
+recent-windows {
+    highlight {
+        active-color "{{iris}}"
+        urgent-color "{{love}}"
+        corner-radius 12
+    }
+}

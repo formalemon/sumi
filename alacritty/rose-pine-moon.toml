@@ -1,5 +1,6 @@
-# Rosé Pine Moon, as enso's rose-pine-moon theme writes it: the colours
-# without enso. With enso, its own file is imported after this and wins.
+# Rosé Pine Moon: the colours without enso. Written by theme/render from
+# theme/rose-pine-moon.toml and theme/templates/alacritty.toml; change
+# those, not this. With enso, its own file is imported after this and wins.
 
 [colors.primary]
 foreground = "#e0def4"

@@ -1,0 +1,75 @@
+# Rosé Pine Moon: the colours without enso. Written by theme/render from
+# theme/rose-pine-moon.toml and theme/templates/alacritty.toml; change
+# those, not this. With enso, its own file is imported after this and wins.
+
+[colors.primary]
+foreground = "{{text}}"
+background = "{{base}}"
+dim_foreground = "{{subtle}}"
+bright_foreground = "{{text}}"
+
+[colors.cursor]
+text = "{{base}}"
+cursor = "{{rose}}"
+
+[colors.vi_mode_cursor]
+text = "{{text}}"
+cursor = "{{highlight-high}}"
+
+[colors.search.matches]
+foreground = "{{subtle}}"
+background = "{{overlay}}"
+
+[colors.search.focused_match]
+foreground = "{{base}}"
+background = "{{rose}}"
+
+[colors.hints.start]
+foreground = "{{subtle}}"
+background = "{{surface}}"
+
+[colors.hints.end]
+foreground = "{{muted}}"
+background = "{{surface}}"
+
+[colors.line_indicator]
+foreground = "None"
+background = "None"
+
+[colors.footer_bar]
+foreground = "{{text}}"
+background = "{{surface}}"
+
+[colors.selection]
+text = "{{text}}"
+background = "{{highlight-med}}"
+
+[colors.normal]
+black = "{{overlay}}"
+red = "{{love}}"
+green = "{{pine}}"
+yellow = "{{gold}}"
+blue = "{{foam}}"
+magenta = "{{iris}}"
+cyan = "{{rose}}"
+white = "{{text}}"
+
+[colors.bright]
+black = "{{muted}}"
+red = "{{love}}"
+green = "{{pine}}"
+yellow = "{{gold}}"
+blue = "{{foam}}"
+magenta = "{{iris}}"
+cyan = "{{rose}}"
+white = "{{text}}"
+
+[colors.dim]
+black = "{{muted}}"
+red = "{{love}}"
+green = "{{pine}}"
+yellow = "{{gold}}"
+blue = "{{foam}}"
+magenta = "{{iris}}"
+cyan = "{{rose}}"
+white = "{{text}}"

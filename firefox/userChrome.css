@@ -1,11 +1,12 @@
 /* Firefox's own interface. Linked into each profile as chrome/userChrome.css
    by ./install; read when Firefox starts.
 
-   Colours: Rosé Pine Moon from rose-pine-moon.css (linked beside this),
-   then enso's, if enso is installed — `enso-ctl theme set` rewrites it;
-   without enso the import finds nothing and is skipped. Later wins.
-   A stylesheet cannot say "~", so enso's path names this home outright. */
+   Colours: Rosé Pine Moon from rose-pine-moon.css, then enso's from
+   enso.css, if enso is installed — `enso-ctl theme set` rewrites it.
+   ./install links both in beside this file (enso.css to where enso writes
+   it); without enso that link leads nowhere, and the import is skipped.
+   Later wins. */
 @import url("rose-pine-moon.css");
-@import url("file:///home/ren/.local/state/enso/firefox.css");
+@import url("enso.css");
 
 /* Rules of your own go below the import. */
