@@ -3,9 +3,15 @@
 # right is left alone, and nothing of yours is overwritten.
 #
 #   ./install          link the configs, make the directories they expect,
-#                      fetch the cursor theme and the fonts
-#   ./install --enso   also build enso (from ~/dev/enso, or $ENSO) and put
-#                      its tools on PATH
+#                      fetch the cursor theme and the fonts — then ask which
+#                      enso tools you want, if any (all, by default)
+#   ./install --enso             all the enso tools, without asking
+#   ./install --enso=bar,files   just these
+#   ./install --no-enso          none: the dotfiles alone
+#
+# The dotfiles don't need enso. What each enso tool adds — to niri, to GTK,
+# its config — is put in place only for the tools picked; enso is built from
+# ~/dev/enso (or $ENSO).
 
 set -euo pipefail
 
@@ -112,7 +118,6 @@ fetch() {
 
 echo "configs"
 link niri       "$config/niri"
-link enso       "$config/enso"
 link alacritty  "$config/alacritty"
 link nvim       "$config/nvim"
 link fontconfig "$config/fontconfig"
@@ -138,12 +143,8 @@ fetch "$data/fonts/GoogleSansCode" "$code_release" \
 # New fonts are only seen once fontconfig's cache knows them.
 ((fetched)) && fc-cache "$data/fonts" && say cached "$data/fonts"
 
-echo "colours from enso"
-# GTK 3: file choosers and dialogs. GTK 4 and libadwaita too, ready for the
-# first program that uses them.
-import "$config/gtk-3.0/gtk.css" gtk-3.0.css
-import "$config/gtk-4.0/gtk.css" gtk-4.0.css
-# Firefox: every profile's interface, and the setting that lets it be styled.
+echo "firefox"
+# Every profile's interface, and the setting that lets it be styled.
 found=0
 for profile in "$config"/mozilla/firefox/*/ "$HOME"/.mozilla/firefox/*/; do
     [[ -f ${profile}prefs.js || -f ${profile}times.json ]] || continue
@@ -153,22 +154,140 @@ for profile in "$config"/mozilla/firefox/*/ "$HOME"/.mozilla/firefox/*/; do
 done
 ((found)) || say - "no Firefox profile yet; run again once Firefox has started"
 
-if [[ ${1:-} == --enso ]]; then
-    echo "enso"
-    enso=${ENSO:-$HOME/dev/enso}
-    if [[ -f $enso/Cargo.toml ]]; then
-        (cd "$enso" && cargo build --release)
-        for tool in bar ctl launch notify wall power lock; do
-            ln -sf "$enso/target/release/enso-$tool" "$HOME/.local/bin/enso-$tool"
+# ── enso ─────────────────────────────────────────────────────────────
+# Which enso tools, if any. Each picked tool gets its binary on PATH, its
+# part of the niri config (niri/enso/<tool>.kdl), and whatever else it needs;
+# a tool not picked leaves no trace.
+
+tools=(bar launch ctl notify wall power lock files)
+declare -A about=(
+    [bar]="status bar"
+    [launch]="launcher for apps and files"
+    [ctl]="control center, and one theme for everything"
+    [notify]="notifications"
+    [wall]="wallpaper"
+    [power]="power menu"
+    [lock]="lock screen"
+    [files]="file manager, and every app's file chooser"
+)
+remembered=$state/sumi/enso-tools
+previous=" $(tr '\n' ' ' 2>/dev/null <"$remembered" || true) "
+asking=0
+[[ -t 0 && -r /dev/tty ]] && asking=1
+
+choice=
+for arg in "$@"; do
+    case $arg in
+        --enso) choice=all ;;
+        --no-enso) choice=none ;;
+        --enso=*) choice=${arg#--enso=} ;;
+        *) echo "install: unknown option $arg" >&2; exit 2 ;;
+    esac
+done
+
+# ask <question> <default y|n>: yes or no, from the terminal.
+ask() {
+    local answer hint="[Y/n]"
+    [[ $2 == n ]] && hint="[y/N]"
+    read -rp "  $1 $hint " answer </dev/tty || answer=
+    answer=${answer,,}
+    [[ ${answer:-$2} == y* ]]
+}
+
+echo "enso"
+if [[ -z $choice ]] && ((asking)); then
+    echo "  The enso desktop: a bar, a launcher, a control center, notifications,"
+    echo "  a wallpaper, power menu, lock screen, and a file manager."
+    read -rp "  Install them? [Y]es, all · [n]o · [s]ome " answer </dev/tty || answer=
+    case ${answer,,} in
+        '' | y | yes) choice=all ;;
+        n | no) choice=none ;;
+        *) choice=some ;;
+    esac
+fi
+picked=()
+case ${choice:-all} in
+    all) picked=("${tools[@]}") ;;
+    none) ;;
+    some)
+        for tool in "${tools[@]}"; do
+            # The last answer is the default; the first time, yes.
+            default=y
+            [[ -f $remembered && $previous != *" $tool "* ]] && default=n
+            ask "$(printf 'enso-%-7s %-46s' "$tool" "${about[$tool]}")" "$default" && picked+=("$tool")
         done
-        say built "$enso"
+        ;;
+    *)
+        IFS=, read -ra picked <<<"$choice"
+        for tool in "${picked[@]}"; do
+            [[ -v about[$tool] ]] || { echo "install: no enso tool called $tool" >&2; exit 2; }
+        done
+        ;;
+esac
+has() { [[ " ${picked[*]} " == *" $1 "* ]]; }
+mkdir -p "$state/sumi"
+printf '%s\n' "${picked[@]}" >"$remembered"
+
+enso=${ENSO:-$HOME/dev/enso}
+bin=$HOME/.local/bin
+# Tools no longer wanted: their links go (only ours, into the enso build).
+for tool in "${tools[@]}"; do
+    has "$tool" && continue
+    link=$bin/enso-$tool
+    [[ -L $link && $(readlink "$link") == "$enso/target/"* ]] || continue
+    # The file chooser goes back to what it was before taking it away.
+    if [[ $tool == files ]]; then
+        "$link" portal disable | sed 's/^/  /' || true
+    fi
+    rm "$link"
+    say removed "$link"
+done
+
+if ((${#picked[@]})); then
+    if [[ -f $enso/Cargo.toml ]]; then
+        packages=()
+        for tool in "${picked[@]}"; do packages+=(-p "enso-$tool"); done
+        (cd "$enso" && cargo build --release "${packages[@]}")
+        for tool in "${picked[@]}"; do
+            ln -sf "$enso/target/release/enso-$tool" "$bin/enso-$tool"
+        done
+        say built "${picked[*]}"
     else
         say SKIPPED "no enso checkout at $enso (set ENSO=…)"
+    fi
+    link enso "$config/enso"
+fi
+
+# niri: the picked tools' parts, which niri/config.kdl includes if present.
+niri_enso=$state/sumi/niri-enso.kdl
+if ((${#picked[@]})); then
+    {
+        echo "// Written by sumi's install: the enso tools picked, each adding to niri."
+        for tool in "${picked[@]}"; do
+            [[ -f $here/niri/enso/$tool.kdl ]] && echo "include \"~/.config/niri/enso/$tool.kdl\""
+        done
+    } >"$niri_enso"
+    say ok "$niri_enso"
+else
+    rm -f "$niri_enso"
+fi
+
+# The control center's theme reaches GTK 3 (file choosers, dialogs) and
+# GTK 4 through these imports.
+if has ctl; then
+    import "$config/gtk-3.0/gtk.css" gtk-3.0.css
+    import "$config/gtk-4.0/gtk.css" gtk-4.0.css
+fi
+
+# The file manager as every application's file chooser: its own set-up.
+if has files && [[ -x $bin/enso-files ]]; then
+    if ((!asking)) || ask "Use enso-files as every app's file chooser?" y; then
+        "$bin/enso-files" portal enable | sed 's/^/  /'
     fi
 fi
 
 # Write the theme everywhere, now that everything includes it.
-if command -v enso-ctl >/dev/null; then
+if has ctl && [[ -x $bin/enso-ctl ]]; then
     echo "theme"
-    enso-ctl theme apply | sed 's/^/  /'
+    "$bin/enso-ctl" theme apply | sed 's/^/  /'
 fi

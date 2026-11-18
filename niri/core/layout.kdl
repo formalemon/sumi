@@ -31,13 +31,6 @@ layout {
         offset x=0 y=6
     }
 
-    // enso-bar reserves its full 36px, but its islands stop 4px short of
-    // that, so the gap under them reads as 4 + 16. Pull windows up to leave
-    // 8px under the islands. (0 gives the full gap back; -16 touches the bar.)
-    struts {
-        top -12
-    }
-
     tab-indicator {
         width 4
         gap 6

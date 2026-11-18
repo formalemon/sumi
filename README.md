@@ -1,22 +1,27 @@
 # sumi
 
-Dotfiles for `ren@kiri`: Niri on Arch, dressed in Rosé Pine Moon, with the
-enso desktop (bar, launcher, control center,
-notifications, wallpaper, power menu, lock).
+Dotfiles for `ren@kiri`: Niri on Arch, dressed in Rosé Pine Moon — and,
+if you want it, the [enso](https://github.com/formalemon/enso) desktop (bar,
+launcher, control center, notifications, wallpaper, power menu, lock, file
+manager). The dotfiles stand on their own: each enso tool adds its part only
+when it's picked at install.
 
 Each directory here is one directory of `~/.config`, linked into place.
 
 ```
 niri/                 the compositor
   config.kdl            entry point: only a list of includes
-  outputs.kdl           monitors
-  input.kdl             keyboard, touchpad, mouse
-  layout.kdl            gaps, column widths, ring and shadow geometry
-  theme.kdl             fallback colours; enso-ctl supplies the live ones
-  rules.kdl             window and layer rules
-  session.kdl           cursor behaviour, screenshots, overlays
-  autostart.kdl         what starts with niri
-  binds.kdl             keys
+  core/                 niri on its own, needing nothing else
+    outputs.kdl           monitors
+    input.kdl             keyboard, touchpad, mouse
+    layout.kdl            gaps, column widths, ring and shadow geometry
+    theme.kdl             colours (enso-ctl, if picked, writes the live ones)
+    rules.kdl             window and layer rules
+    session.kdl           cursor behaviour, screenshots, overlays
+    binds.kdl             keys (volume through wpctl)
+  enso/                 what each enso tool adds: what it starts, its keys,
+                        its rules — bar, launch, ctl, notify, wall, power,
+                        lock, files; included only for the tools picked
 bash/                 the shell, pure bash: nothing to install
   profile               login shells: PATH, editor, INPUTRC (~/.bash_profile)
   rc                    interactive shells: history, colours (~/.bashrc)
@@ -31,8 +36,8 @@ nvim/                 Neovim: line numbers, rose-pine/neovim, no background of i
 firefox/              Firefox's interface, linked into each profile
   userChrome.css        imports enso's colours; rules of your own below
   user.js               the preference that lets it be styled
-enso/                 the enso suite
-  config.toml           settings: the fonts, the cursor, the wallpaper
+enso/                 enso's settings (linked only if a tool is picked)
+  config.toml           the fonts, the cursor, the wallpaper
   wallpapers/           pictures enso-wall shows
 ```
 
@@ -40,14 +45,22 @@ enso/                 the enso suite
 
 ```sh
 git clone https://github.com/formalemon/sumi ~/dev/sumi
-~/dev/sumi/install           # link everything into place
-~/dev/sumi/install --enso    # …and build enso from ~/dev/enso onto PATH
+~/dev/sumi/install                     # link everything, then ask about enso
+~/dev/sumi/install --enso              # …all the enso tools, without asking
+~/dev/sumi/install --enso=bar,files    # …just these
+~/dev/sumi/install --no-enso           # …none: the dotfiles alone
 ```
 
 `install` links each directory into `~/.config` (and the two bash files into
 `~`, the only names bash reads), makes the directories the configs expect
-(`~/Pictures/Screenshots`), fetches the cursor and the fonts, and has GTK 3,
-GTK 4, and Firefox import the colours enso writes. It can be run again at any
+(`~/Pictures/Screenshots`), and fetches the cursor and the fonts. Then it
+asks about enso: **Y**es, all of it (the default), **n**o, or **s**ome — one
+question per tool, your last answers the defaults. For the tools picked it
+builds them from `~/dev/enso` (or `$ENSO`) onto `PATH`, links `enso/`, writes
+`~/.local/state/sumi/niri-enso.kdl` (the list of `niri/enso/` parts niri
+includes), has GTK import the control center's colours, and lets enso-files
+set itself up as every app's file chooser (`enso-files portal enable`). Tools
+dropped on a later run are taken away again. It can be run again at any
 time; it never overwrites a file that is not its own.
 
 The cursor and the fonts come from their authors' own GitHub releases, not
@@ -63,12 +76,15 @@ against the SHA-256 written in the script, and unpacks it with `bsdtar`
 
 ## Keys worth knowing
 
+With the enso tools (each key comes with its tool):
+
 | Key | Does |
 | --- | --- |
 | `Mod+Space` | launcher (`enso-launch`) |
 | `Mod+C` | control center (`enso-ctl`) |
 | `Mod+Shift+E` | power menu (`enso-power`): lock, log out, restart, shut down |
 | `Super+Alt+L` | lock (`enso-lock`) — also by itself after 5 minutes alone, and before sleep |
+| `Mod+E` | files (`enso-files`) |
 | `Mod+T` / `Mod+B` | terminal / browser |
 | `Mod+Shift+/` | every binding |
 

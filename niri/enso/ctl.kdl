@@ -1,0 +1,18 @@
+// enso-ctl: the control center, the volume and brightness keys, and one
+// theme for the whole desktop.
+
+// The active theme's colours, cursor, and fonts, rewritten by
+// `enso-ctl theme set`, over core/theme.kdl.
+include optional=true "~/.local/state/enso/niri.kdl"
+
+binds {
+    Mod+C hotkey-overlay-title="Control Center: enso-ctl" { spawn "enso-ctl"; }
+
+    XF86AudioRaiseVolume allow-when-locked=true { spawn "enso-ctl" "volume" "up"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn "enso-ctl" "volume" "down"; }
+    XF86AudioMute        allow-when-locked=true { spawn "enso-ctl" "volume" "toggle"; }
+    XF86AudioMicMute     allow-when-locked=true { spawn "enso-ctl" "mic" "toggle"; }
+
+    XF86MonBrightnessUp   allow-when-locked=true { spawn "enso-ctl" "brightness" "up"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn "enso-ctl" "brightness" "down"; }
+}

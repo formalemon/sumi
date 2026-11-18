@@ -1,8 +1,0 @@
-// What starts with niri: the enso desktop.
-// The binaries are found on PATH (~/.local/bin); see the README.
-// Pure Wayland session: no xwayland-satellite.
-
-spawn-at-startup "enso-wall"     // wallpaper, one per theme
-spawn-at-startup "enso-bar"      // status bar
-spawn-at-startup "enso-notify"   // notifications
-spawn-at-startup "enso-lock" "watch" // lock when left alone, and before sleep

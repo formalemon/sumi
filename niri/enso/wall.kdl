@@ -1,0 +1,3 @@
+// enso-wall: the wallpaper, one per theme.
+
+spawn-at-startup "enso-wall"

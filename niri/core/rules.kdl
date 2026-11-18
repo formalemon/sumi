@@ -17,14 +17,6 @@ window-rule {
     open-floating true
 }
 
-// ── enso ────────────────────────────────────────────────────────────
-
-// Notifications are for your eyes: leave them out of screen shares.
-layer-rule {
-    match namespace="^enso-notify$"
-    block-out-from "screencast"
-}
-
 // Keep secrets out of recordings and screenshots.
 // window-rule {
 //     match app-id=r#"^org\.keepassxc\.KeePassXC$"#

@@ -1,0 +1,5 @@
+// enso-power: lock, log out, restart, shut down.
+
+binds {
+    Mod+Shift+E repeat=false hotkey-overlay-title="Power Menu: enso-power" { spawn "enso-power"; }
+}

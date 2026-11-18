@@ -1,14 +1,19 @@
 // niri — entry point. Every concern lives in its own file; this one only
 // says which, and in what order. Later files win where two set the same thing.
 // https://niri-wm.github.io/niri/Configuration:-Introduction
+//
+// core/ is niri on its own: these dotfiles need nothing else.
+// enso/ holds what each enso tool adds (what it starts, its keys, its
+// rules), one file per tool. ./install writes the list of the tools you
+// picked to ~/.local/state/sumi/niri-enso.kdl; without it, niri is core/.
 
-include "outputs.kdl"    // monitors
-include "input.kdl"      // keyboard, touchpad, mouse
-include "layout.kdl"     // gaps, column widths, ring and shadow geometry
-include "theme.kdl"      // colours: the fallback palette
-// Colours of the active enso theme, rewritten by `enso-ctl theme set`.
-include optional=true "~/.local/state/enso/niri.kdl"
-include "rules.kdl"      // window and layer rules
-include "session.kdl"    // cursor, screenshots, overlays
-include "autostart.kdl"  // the enso desktop
-include "binds.kdl"      // keys
+include "core/outputs.kdl"   // monitors
+include "core/input.kdl"     // keyboard, touchpad, mouse
+include "core/layout.kdl"    // gaps, column widths, ring and shadow geometry
+include "core/theme.kdl"     // colours
+include "core/rules.kdl"     // window and layer rules
+include "core/session.kdl"   // cursor, screenshots, overlays
+include "core/binds.kdl"     // keys
+
+// The enso tools picked at install, each adding to the above.
+include optional=true "~/.local/state/sumi/niri-enso.kdl"

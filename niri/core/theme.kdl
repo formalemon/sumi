@@ -1,13 +1,12 @@
-// Colours — Rosé Pine Moon, the palette enso uses by default.
-// These are the colours before enso has had a say. `enso-ctl theme set`
-// writes the active theme's over them (see the include in config.kdl), so
-// niri follows theme switches by itself.
+// Colours — Rosé Pine Moon. With enso-ctl installed, the active enso
+// theme's colours are written over these (niri/enso/ctl.kdl), so niri
+// follows theme switches by itself.
 //
 //   base  #232136   overlay        #393552   iris  #c4a7e7
 //   love  #eb6f92   highlight-med  #44415a   foam  #9ccfd8
 
 layout {
-    // Shown only until enso-wall has drawn, and behind "contain" wallpapers.
+    // Behind everything: the desktop, until a wallpaper is drawn over it.
     background-color "#232136"            // base
 
     focus-ring {

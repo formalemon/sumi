@@ -8,18 +8,13 @@ binds {
     // Applications & Suite launches
     Mod+T hotkey-overlay-title="Open Terminal: alacritty" { spawn "alacritty"; }
     Mod+B hotkey-overlay-title="Open Browser: Firefox" { spawn "firefox"; }
-    Mod+Space hotkey-overlay-title="App and File Launcher: enso-launch" { spawn "enso-launch"; }
-    Mod+C hotkey-overlay-title="Control Center: enso-ctl" { spawn "enso-ctl"; }
 
-    // Volume keys via enso-ctl
-    XF86AudioRaiseVolume allow-when-locked=true { spawn "enso-ctl" "volume" "up"; }
-    XF86AudioLowerVolume allow-when-locked=true { spawn "enso-ctl" "volume" "down"; }
-    XF86AudioMute        allow-when-locked=true { spawn "enso-ctl" "volume" "toggle"; }
-    XF86AudioMicMute     allow-when-locked=true { spawn "enso-ctl" "mic" "toggle"; }
-
-    // Brightness keys via enso-ctl
-    XF86MonBrightnessUp   allow-when-locked=true { spawn "enso-ctl" "brightness" "up"; }
-    XF86MonBrightnessDown allow-when-locked=true { spawn "enso-ctl" "brightness" "down"; }
+    // Volume keys, through PipeWire. (enso-ctl takes them over when it's
+    // installed: niri/enso/ctl.kdl.)
+    XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "-l" "1.0" "@DEFAULT_AUDIO_SINK@" "5%+"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%-"; }
+    XF86AudioMute        allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+    XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
 
     // Media keys
     XF86AudioPlay allow-when-locked=true { spawn-sh "playerctl play-pause"; }
@@ -149,9 +144,7 @@ binds {
     Ctrl+Print { screenshot-screen; }
     Alt+Print  { screenshot-window; }
 
-    // Session: power menu, lock, and the escape hatches
-    Mod+Shift+E repeat=false hotkey-overlay-title="Power Menu: enso-power" { spawn "enso-power"; }
-    Super+Alt+L repeat=false hotkey-overlay-title="Lock Screen: enso-lock" { spawn "enso-lock"; }
+    // Session: the escape hatches
     Mod+Shift+P { power-off-monitors; }
     Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
     // Leaves niri even if nothing else answers (asks first).

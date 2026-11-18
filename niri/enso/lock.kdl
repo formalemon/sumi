@@ -1,0 +1,7 @@
+// enso-lock: the lock screen, and locking when left alone and before sleep.
+
+spawn-at-startup "enso-lock" "watch"
+
+binds {
+    Super+Alt+L repeat=false hotkey-overlay-title="Lock Screen: enso-lock" { spawn "enso-lock"; }
+}

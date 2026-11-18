@@ -1,0 +1,9 @@
+// enso-notify: notifications.
+
+spawn-at-startup "enso-notify"
+
+// Notifications are for your eyes: leave them out of screen shares.
+layer-rule {
+    match namespace="^enso-notify$"
+    block-out-from "screencast"
+}

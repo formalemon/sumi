@@ -1,0 +1,14 @@
+// enso-files: the file manager, and the file chooser every application gets.
+
+binds {
+    Mod+E hotkey-overlay-title="Files: enso-files" { spawn "enso-files"; }
+}
+
+// A picker is a dialog: it floats, at a size that shows a folder and its bar.
+// (One an application opens floats anyway; this is for the rest.)
+window-rule {
+    match app-id="^enso-files-picker$"
+    open-floating true
+    default-column-width { fixed 960; }
+    default-window-height { fixed 640; }
+}

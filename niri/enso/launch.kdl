@@ -1,0 +1,5 @@
+// enso-launch: applications and files, by typing.
+
+binds {
+    Mod+Space hotkey-overlay-title="App and File Launcher: enso-launch" { spawn "enso-launch"; }
+}

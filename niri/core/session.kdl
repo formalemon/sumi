@@ -6,9 +6,8 @@ prefer-no-csd
 
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
-// The cursor's theme and size are enso's: `cursor` under [appearance] in
-// enso/config.toml, or `enso-ctl cursor set`. enso-ctl writes them into the
-// niri.kdl that config.kdl includes, and tells GTK the same.
+// The cursor's theme and size are niri's defaults here; enso-ctl, when
+// installed, sets them (niri/enso/ctl.kdl).
 cursor {
     hide-when-typing
 }
