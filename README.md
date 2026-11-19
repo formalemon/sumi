@@ -19,7 +19,8 @@ niri/                 the compositor
                           the live ones)
     rules.kdl             window and layer rules
     session.kdl           cursor behaviour, screenshots, overlays
-    binds.kdl             keys (volume through wpctl)
+    binds.kdl             keys (volume through wpctl, media keys through
+                          busctl to the first MPRIS player)
   enso/                 what each enso tool adds: what it starts, its keys,
                         its rules — bar, launch, ctl, notify, wall, power,
                         lock, files, auth, play (Mod+P and the media

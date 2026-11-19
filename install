@@ -351,12 +351,16 @@ if ((${#picked[@]})); then
 fi
 
 # niri: the picked tools' parts, which niri/config.kdl includes if present.
+# Only for a tool that is really on PATH now: one that couldn't be had (not
+# in the release yet, a failed build) leaves core/'s keys as they are.
 niri_enso=$state/sumi/niri-enso.kdl
 if ((${#picked[@]})); then
     {
         echo "// Written by sumi's install: the enso tools picked, each adding to niri."
         for tool in "${picked[@]}"; do
-            [[ -f $here/niri/enso/$tool.kdl ]] && echo "include \"~/.config/niri/enso/$tool.kdl\""
+            [[ -f $here/niri/enso/$tool.kdl && -x $bin/enso-$tool ]] || continue
+            ours "$bin/enso-$tool" || continue
+            echo "include \"~/.config/niri/enso/$tool.kdl\""
         done
     } >"$niri_enso"
     say ok "$niri_enso"

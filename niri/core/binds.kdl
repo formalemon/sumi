@@ -16,11 +16,13 @@ binds {
     XF86AudioMute        allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
     XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
 
-    // Media keys
-    XF86AudioPlay allow-when-locked=true { spawn-sh "playerctl play-pause"; }
-    XF86AudioStop allow-when-locked=true { spawn-sh "playerctl stop"; }
-    XF86AudioPrev allow-when-locked=true { spawn-sh "playerctl previous"; }
-    XF86AudioNext allow-when-locked=true { spawn-sh "playerctl next"; }
+    // Media keys: straight to the first media player on the session bus
+    // (MPRIS), with busctl from systemd — nothing to install. enso-play,
+    // if picked, takes them over and chooses the one that's playing.
+    XF86AudioPlay allow-when-locked=true { spawn-sh "busctl --user call \"$(busctl --user list --no-legend | awk '/^org\\.mpris\\.MediaPlayer2\\./ { print $1; exit }')\" /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player PlayPause"; }
+    XF86AudioStop allow-when-locked=true { spawn-sh "busctl --user call \"$(busctl --user list --no-legend | awk '/^org\\.mpris\\.MediaPlayer2\\./ { print $1; exit }')\" /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player Stop"; }
+    XF86AudioPrev allow-when-locked=true { spawn-sh "busctl --user call \"$(busctl --user list --no-legend | awk '/^org\\.mpris\\.MediaPlayer2\\./ { print $1; exit }')\" /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player Previous"; }
+    XF86AudioNext allow-when-locked=true { spawn-sh "busctl --user call \"$(busctl --user list --no-legend | awk '/^org\\.mpris\\.MediaPlayer2\\./ { print $1; exit }')\" /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player Next"; }
 
     // Window management
     Mod+Q repeat=false { close-window; }
