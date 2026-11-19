@@ -1,0 +1,182 @@
+#!/usr/bin/env bash
+# sumi/system/check: compare this machine with README.md, step by step, and
+# say what's still to do and the command for it. It only looks: it changes
+# nothing and needs no root. What it can't see (the firmware's settings,
+# what's inside /boot) it says so.
+#
+# Kernel options are read from the running boot: after changing them,
+# restart before checking again.
+
+set -uo pipefail
+
+here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+data=${XDG_DATA_HOME:-$HOME/.local/share}
+staged=$data/enso/greet
+todo=0
+
+say()  { printf '  %-6s %s\n' "$1" "$2"; }
+ok()   { say ok "$1"; }
+skip() { say -- "$1"; }
+# need <what> <command>: something to do, and how.
+need() {
+    say todo "$1"
+    [[ -n ${2:-} ]] && printf '         %s\n' "$2"
+    todo=$((todo + 1))
+}
+# maybe <what> <command>: optional, and not done.
+maybe() {
+    say -- "$1 (optional, not done)"
+    [[ -n ${2:-} ]] && printf '         %s\n' "$2"
+}
+has() { command -v "$1" >/dev/null 2>&1; }
+installed() { pacman -Q "$1" >/dev/null 2>&1; }
+
+# enso's parts are checked when enso is here: its login screen on PATH, or
+# a checkout to build the boot menu from.
+enso_checkout=${ENSO:-$HOME/dev/enso}
+greet=no
+has enso-greet && greet=yes
+
+# A systemd-boot variable, readable by anyone: what it holds, as text.
+efivar() {
+    local file
+    file=$(compgen -G "/sys/firmware/efi/efivars/$1-*" | head -1) || return 1
+    [[ -r $file ]] || return 1
+    tail -c +5 "$file" | tr -d '\0'
+}
+
+echo "1. firmware"
+skip "Fast Boot can't be seen from here: F2 at power-on, Boot → Fast Boot"
+
+echo "2. boot menu"
+selected=$(efivar LoaderEntrySelected || true)
+if [[ $selected == enso.conf ]]; then
+    ok "started through enso-boot (systemd-boot entry enso.conf)"
+elif [[ -d $enso_checkout || $greet == yes ]]; then
+    need "enso-boot isn't what starts (this boot came through '${selected:-?}')" \
+        "cd $enso_checkout && cargo run --release -p enso-boot -- install   # README step 2"
+else
+    skip "no enso: systemd-boot's own menu"
+fi
+
+echo "3. initramfs"
+modules=$(grep -E '^MODULES=' /etc/mkinitcpio.conf 2>/dev/null)
+if [[ -z $modules ]]; then
+    need "no MODULES line in /etc/mkinitcpio.conf" "README step 3"
+elif [[ $modules == *nvidia* ]]; then
+    need "NVIDIA's driver is in the initramfs: $modules" \
+        "set MODULES=(i915) in /etc/mkinitcpio.conf, then sudo mkinitcpio -P"
+else
+    ok "$modules"
+fi
+
+echo "4. quiet boot"
+read -r -a cmdline </proc/cmdline
+in_cmdline() {
+    local word
+    for word in "${cmdline[@]}"; do [[ $word == "$1" ]] && return 0; done
+    return 1
+}
+missing=()
+for word in quiet loglevel=3 rd.udev.log_level=3 systemd.show_status=auto \
+    vt.global_cursor_default=0 splash fbcon=vc:2-63; do
+    in_cmdline "$word" || missing+=("$word")
+done
+if ((${#missing[@]} == 0)); then
+    ok "kernel options in place"
+else
+    need "kernel options missing: ${missing[*]}" "README step 4, then restart"
+fi
+for word in "${cmdline[@]}"; do
+    case $word in
+        plymouth.debug | video=*)
+            need "a leftover from testing on the options line: $word" \
+                "sudo sed -i 's/ ${word//\//\\/}//' /boot/loader/entries/<the Arch entry>.conf"
+            ;;
+    esac
+done
+
+echo "5. boot splash"
+if ! installed plymouth; then
+    need "plymouth isn't installed" "sudo pacman -S plymouth   # README step 5"
+else
+    hooks=$(grep -E '^HOOKS=' /etc/mkinitcpio.conf 2>/dev/null)
+    if [[ $hooks == *plymouth* ]]; then
+        ok "plymouth is in the initramfs's HOOKS"
+    else
+        need "plymouth isn't in HOOKS" \
+            "sudo sed -i 's/^HOOKS=(base systemd /HOOKS=(base systemd plymouth /' /etc/mkinitcpio.conf && sudo mkinitcpio -P"
+    fi
+    theme=$(plymouth-set-default-theme 2>/dev/null)
+    if [[ $greet == yes ]]; then
+        if [[ $theme == enso ]]; then
+            ok "theme: enso"
+        else
+            need "theme is '${theme:-?}', not enso" "README step 5"
+        fi
+        if [[ -f $staged/plymouth/enso.script ]] &&
+            ! cmp -s "$staged/plymouth/enso.script" /usr/share/plymouth/themes/enso/enso.script; then
+            need "the installed splash is older than the one enso-greet enable wrote" \
+                "sudo rm -rf /usr/share/plymouth/themes/enso && sudo cp -r $staged/plymouth /usr/share/plymouth/themes/enso && sudo mkinitcpio -P"
+        fi
+        if [[ -f /etc/systemd/system/plymouth-quit.service.d/enso.conf ]]; then
+            ok "the splash's last frame stays up for the login screen"
+        else
+            need "Plymouth clears the screen when it goes" \
+                "sudo install -Dm644 $staged/plymouth-quit.conf /etc/systemd/system/plymouth-quit.service.d/enso.conf"
+        fi
+    else
+        ok "theme: ${theme:-?}"
+    fi
+fi
+
+echo "6. login screen"
+if ! installed greetd; then
+    need "greetd isn't installed" "sudo pacman -S greetd   # README step 6"
+else
+    if [[ $(systemctl is-enabled greetd 2>/dev/null) == enabled ]]; then
+        ok "greetd is the login"
+    else
+        need "greetd isn't enabled" "sudo systemctl enable greetd && systemctl reboot"
+    fi
+    if [[ $greet == yes ]]; then
+        built=$(readlink -f "$(command -v enso-greet)")
+        if [[ ! -x /usr/local/bin/enso-greet ]]; then
+            need "enso-greet isn't installed for greetd" "enso-greet enable, and run what it prints"
+        elif ! cmp -s "$built" /usr/local/bin/enso-greet; then
+            need "the login screen is older than enso-greet on PATH" \
+                "sudo install -Dm755 $built /usr/local/bin/enso-greet"
+        else
+            ok "the login screen is current"
+        fi
+        for pair in "$staged/enso-greet.kdl:/etc/greetd/enso-greet.kdl" \
+            "$staged/backdrop.png:/usr/local/share/enso/greet/backdrop.png" \
+            "$staged/config.toml:/etc/greetd/config.toml"; do
+            from=${pair%%:*} to=${pair#*:}
+            [[ -f $from ]] || continue
+            if ! cmp -s "$from" "$to"; then
+                need "$to differs from what enso-greet enable wrote" "sudo install -Dm644 $from $to"
+            fi
+        done
+    fi
+fi
+
+echo "7. consoles (optional)"
+if [[ $(cat /sys/module/vt/parameters/default_red 2>/dev/null) == 35,235,62,* ]]; then
+    ok "Rosé Pine Moon colours"
+else
+    maybe "the consoles' colours" "README step 7"
+fi
+if grep -q '█▄▄▄' /etc/issue 2>/dev/null; then
+    ok "the ensō above a console login"
+else
+    maybe "the ensō above a console login" "README step 7"
+fi
+
+echo
+if ((todo == 0)); then
+    echo "Nothing to do."
+else
+    echo "$todo to do. Details in $here/README.md."
+fi
+((todo == 0))

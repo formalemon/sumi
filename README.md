@@ -59,9 +59,10 @@ theme/                the colours, without enso
 enso/                 enso's settings (linked only if a tool is picked)
   config.toml           the fonts, the cursor, the wallpaper
   wallpapers/           pictures enso-wall shows
-system/               changes outside $HOME, for root to make by hand: a
-                      quiet boot, the console's colours, the ensō at the
-                      console login, greetd (install never runs these)
+system/               how the machine starts, for root to set up by hand:
+                      the boot menu, a small initramfs, a quiet boot, the
+                      splash, the login screen (install never runs these);
+                      ./system/check says what's still to do
 ```
 
 ## Install
