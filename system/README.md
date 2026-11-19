@@ -124,3 +124,12 @@ sudo systemctl stop greetd && sudo systemctl start getty@tty1 # back
 sudo systemctl enable greetd                                  # keep it
 sudo systemctl disable greetd                                 # undo, from the next start
 ```
+
+## 6. A boot menu with a picture
+
+- **With enso**, `enso-boot` is a boot menu for the firmware: Arch or
+  Windows over voxel rice terraces at dusk, then the ensō while Arch
+  starts quietly (steps 2 and 3). `enso-boot install` prints the steps,
+  starting with trying it from systemd-boot's own menu. It starts Arch as
+  systemd-boot's entry says, so step 2's options apply to both.
+- **Without enso**, systemd-boot's menu stays as it is.
