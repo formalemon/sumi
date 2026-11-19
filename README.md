@@ -34,7 +34,16 @@ fontconfig/           sans-serif and monospace: the fonts enso is set to
                       (enso writes them), then Adwaita for what they lack
 alacritty/            the terminal: padding, translucency, a blinking bar
                       cursor; colours from theme/, then enso's over them
-nvim/                 Neovim: line numbers, rose-pine/neovim, no background of its own
+nvim/                 Neovim, one module per concern; plugins through vim.pack,
+                      pinned in nvim-pack-lock.json
+  lua/sumi/             options, keys, autocmds, the theme (rose-pine, from
+                        enso), a statusline of its own, tree-sitter
+                        (nvim-treesitter), the working directory following
+                        the project, mini.pick, mini.diff, nvim-tree, LSP
+                        with built-in completion, and a start screen: an
+                        ensō and your recent projects
+  lsp/                  a file per language server; each starts only when
+                        its program is installed
 firefox/              Firefox's interface, linked into each profile
   userChrome.css        imports the colours (theme/'s, then enso's from
                         enso.css, which install links to where enso writes
