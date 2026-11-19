@@ -22,3 +22,8 @@ fit = "cover"
 # One picture per theme, when a theme should look different:
 # [wall.themes]
 # rose-pine-dawn = "~/.config/enso/wallpapers/morning.png"
+
+[files]
+# The OAuth app enso-files signs in to GitHub through (device flow; the
+# token goes to enso-keyring). A public identifier, not a secret.
+github_client_id = "Ov23liGDLQBJDrJjj1hb"
