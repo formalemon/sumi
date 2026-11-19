@@ -1,0 +1,15 @@
+// enso-clip: clipboard history — what's copied, kept for the session (in
+// memory only), and what was copied from a window since closed still
+// pastes. Mod+Ctrl+V opens the history (Mod+V floats a window: core/binds).
+
+spawn-at-startup "enso-clip"
+
+binds {
+    Mod+Ctrl+V hotkey-overlay-title="Clipboard History: enso-clip" { spawn "enso-clip" "pick"; }
+}
+
+// What was copied is for your eyes: leave the history out of screen shares.
+layer-rule {
+    match namespace="^enso-clip-pick$"
+    block-out-from "screencast"
+}

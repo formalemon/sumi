@@ -1,0 +1,5 @@
+// enso-dusk: night light — the screens warm from sunset to sunrise, worked
+// out from the timezone. The control center's moon (or `n` there) turns it
+// the other way until the next sunset or sunrise.
+
+spawn-at-startup "enso-dusk"

@@ -141,8 +141,10 @@ binds {
     Mod+Shift+V { switch-focus-between-floating-and-tiling; }
     Mod+W       { toggle-column-tabbed-display; }
 
-    // Screenshots
+    // Screenshots. Mod+Shift+S is the same as Print, for keyboards where
+    // Print hides behind Fn (and the hands that know it from elsewhere).
     Print      { screenshot; }
+    Mod+Shift+S { screenshot; }
     Ctrl+Print { screenshot-screen; }
     Alt+Print  { screenshot-window; }
 

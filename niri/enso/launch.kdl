@@ -2,4 +2,6 @@
 
 binds {
     Mod+Space hotkey-overlay-title="App and File Launcher: enso-launch" { spawn "enso-launch"; }
+    // The calculator key: the launcher, ready for a sum.
+    XF86Calculator { spawn "enso-launch" "--query" "="; }
 }

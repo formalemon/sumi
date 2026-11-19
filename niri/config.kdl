@@ -7,6 +7,11 @@
 // rules), one file per tool. ./install writes the list of the tools you
 // picked to ~/.local/state/sumi/niri-enso.kdl; without it, niri is core/.
 
+// What an enso tool must say first: niri takes the first section it finds
+// for a screen, so screens kept by the control center's Displays page come
+// before core/outputs.kdl. ./install writes it; without enso it's absent.
+include optional=true "~/.local/state/sumi/niri-enso-first.kdl"
+
 include "core/outputs.kdl"   // monitors
 include "core/input.kdl"     // keyboard, touchpad, mouse
 include "core/layout.kdl"    // gaps, column widths, ring and shadow geometry

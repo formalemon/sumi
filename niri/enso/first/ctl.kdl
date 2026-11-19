@@ -1,0 +1,3 @@
+// enso-ctl, before core/: the screens as the Displays page left them
+// (written whole by enso-ctl), which niri reads ahead of core/outputs.kdl.
+include optional=true "~/.local/state/enso/outputs.kdl"

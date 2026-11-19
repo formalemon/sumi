@@ -27,3 +27,9 @@ fit = "cover"
 # The OAuth app enso-files signs in to GitHub through (device flow; the
 # token goes to enso-keyring). A public identifier, not a secret.
 github_client_id = "Ov23liGDLQBJDrJjj1hb"
+
+[dusk]
+# The night light (enso-dusk): the screens warm from sunset to sunrise,
+# worked out from the timezone. A theme for each, switched with the sun:
+# day_theme = "rose-pine-dawn"
+# night_theme = "rose-pine-moon"

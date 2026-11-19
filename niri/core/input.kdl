@@ -13,8 +13,10 @@ input {
 
     touchpad {
         tap
-        // dwt
-        // dwtp
+        // Ignore the touchpad while typing, and while the TrackPoint is
+        // in use: a palm resting on the pad moves and clicks nothing.
+        dwt
+        dwtp
         natural-scroll
         // accel-speed 0.2
         // accel-profile "flat"

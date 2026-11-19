@@ -34,6 +34,10 @@ flex_release=v5.000
 flex_sha256=c20b00878dd801d1bfc06d771732447940c7255bf94cf538ce0102c7fb06fa85
 code_release=v7.001
 code_sha256=eebba2a438882396e8530cad6d6cb80182b0afb6e9e0ad07b7340359a53ba2e9
+# Noto Color Emoji, for the emoji Google Sans doesn't draw: the font file
+# itself, from the tagged release of its repository.
+emoji_release=v2026-09-24-unicode18_0
+emoji_sha256=15671215ab769fdc7162a045d56fd7d7e477c51b04e6b3c761d914d8fdd6cc44
 # And enso, from its own releases (x86-64 Linux; nothing to build). Moving
 # to a newer release is the same: change these two lines and run again.
 enso_release=v0.2.0
@@ -102,7 +106,8 @@ import() {
 
 # fetch <dest> <release> <url> <sha256> [<top>]: put what a release archive
 # holds at <dest>, unless that release is already there. The archive must
-# hold only <top>/ when one is named, or only plain files when not. What is
+# hold only <top>/ when one is named, or only plain files when not; a lone
+# font file (.ttf) is put there as it is. What is
 # at <dest> but was put there some other way is left alone. Says `fetched`
 # when it fetched, so the caller can tell.
 fetched=0
@@ -131,7 +136,9 @@ fetch() {
     fi
     # bsdtar (pacman's own libarchive) reads tarballs and zips alike.
     local strays
-    if [[ -n $top ]]; then
+    if [[ $archive == *.ttf ]]; then
+        strays=
+    elif [[ -n $top ]]; then
         strays=$(bsdtar -tf "$archive" | grep -v "^$top/" || true)
     else
         strays=$(bsdtar -tf "$archive" | grep -E '/|^\.' || true)
@@ -142,7 +149,11 @@ fetch() {
         return
     fi
     mkdir -p "$tmp/out"
-    bsdtar -xf "$archive" -C "$tmp/out" --no-same-owner --no-same-permissions
+    if [[ $archive == *.ttf ]]; then
+        mv "$archive" "$tmp/out/"
+    else
+        bsdtar -xf "$archive" -C "$tmp/out" --no-same-owner --no-same-permissions
+    fi
     local unpacked=$tmp/out${top:+/$top}
     printf '%s\n' "$release" > "$unpacked/.sumi-release"
     mkdir -p "$(dirname "$dest")"
@@ -181,6 +192,9 @@ fetch "$data/fonts/GoogleSansFlex" "$flex_release" \
 fetch "$data/fonts/GoogleSansCode" "$code_release" \
     "https://github.com/googlefonts/googlesans-code/releases/download/$code_release/GoogleSansCode-$code_release.zip" \
     "$code_sha256"
+fetch "$data/fonts/NotoColorEmoji" "$emoji_release" \
+    "https://github.com/googlefonts/noto-emoji/raw/$emoji_release/2D/fonts/NotoColorEmoji.ttf" \
+    "$emoji_sha256"
 # New fonts are only seen once fontconfig's cache knows them.
 ((fetched)) && fc-cache "$data/fonts" && say cached "$data/fonts"
 
@@ -204,7 +218,7 @@ done
 # part of the niri config (niri/enso/<tool>.kdl), and whatever else it needs;
 # a tool not picked leaves no trace.
 
-tools=(bar launch ctl notify wall power lock files auth keyring play greet)
+tools=(bar launch ctl notify wall power lock files view auth keyring play clip dusk greet)
 declare -A about=(
     [bar]="status bar"
     [launch]="launcher for apps and files"
@@ -214,9 +228,12 @@ declare -A about=(
     [power]="power menu"
     [lock]="lock screen"
     [files]="file manager, and every app's file chooser"
+    [view]="image viewer: pictures open in it"
     [auth]="asks for your password, and Bluetooth codes"
     [keyring]="keeps passwords and tokens, opened by your login"
     [play]="what's playing, under the clock, and the media keys"
+    [clip]="clipboard history (Mod+Ctrl+V)"
+    [dusk]="night light: warm screens from sunset to sunrise"
     [greet]="login screen (greetd; root puts it in place)"
 )
 remembered=$state/sumi/enso-tools
@@ -253,8 +270,8 @@ echo "enso"
 if [[ -z $choice ]] && ((asking)); then
     echo "  The enso desktop: a bar, a launcher, a control center, notifications,"
     echo "  a wallpaper, power menu, lock screen, a file manager, a prompt for"
-    echo "  passwords and pairing codes, a keyring, what's playing, and a login"
-    echo "  screen."
+    echo "  passwords and pairing codes, a keyring, what's playing, clipboard"
+    echo "  history, a night light, and a login screen."
     read -rp "  Install them? [Y]es, all · [n]o · [s]ome " answer </dev/tty || answer=
     case ${answer,,} in
         '' | y | yes) choice=all ;;
@@ -303,8 +320,9 @@ for tool in "${tools[@]}"; do
     if [[ $tool == files ]]; then
         "$link" portal disable | sed 's/^/  /' || true
     fi
-    # Nor is it the keyring anymore (what's in it stays, sealed).
-    if [[ $tool == keyring ]]; then
+    # Nor is it the keyring anymore (what's in it stays, sealed), nor what
+    # opens pictures.
+    if [[ $tool == keyring || $tool == view ]]; then
         "$link" disable | sed 's/^/  /' || true
     fi
     # The login screen is root's to take away: it says how.
@@ -360,6 +378,7 @@ fi
 # Only for a tool that is really on PATH now: one that couldn't be had (not
 # in the release yet, a failed build) leaves core/'s keys as they are.
 niri_enso=$state/sumi/niri-enso.kdl
+niri_enso_first=$state/sumi/niri-enso-first.kdl
 if ((${#picked[@]})); then
     {
         echo "// Written by sumi's install: the enso tools picked, each adding to niri."
@@ -370,8 +389,17 @@ if ((${#picked[@]})); then
         done
     } >"$niri_enso"
     say ok "$niri_enso"
+    # The few parts that must come before core/ (niri/enso/first/).
+    {
+        echo "// Written by sumi's install: enso parts niri must read before core/."
+        for tool in "${picked[@]}"; do
+            [[ -f $here/niri/enso/first/$tool.kdl && -x $bin/enso-$tool ]] || continue
+            ours "$bin/enso-$tool" || continue
+            echo "include \"~/.config/niri/enso/first/$tool.kdl\""
+        done
+    } >"$niri_enso_first"
 else
-    rm -f "$niri_enso"
+    rm -f "$niri_enso" "$niri_enso_first"
 fi
 
 # The control center's theme reaches GTK 3 (file choosers, dialogs) and
@@ -390,6 +418,11 @@ fi
 # it prints the lines for that. sumi runs nothing as root.
 if has greet && [[ -x $bin/enso-greet ]]; then
     "$bin/enso-greet" enable | sed 's/^/  /'
+fi
+
+# What pictures open in (those nothing else was chosen for).
+if has view && [[ -x $bin/enso-view ]]; then
+    "$bin/enso-view" enable | sed 's/^/  /'
 fi
 
 if has files && [[ -x $bin/enso-files ]]; then

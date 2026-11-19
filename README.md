@@ -3,14 +3,16 @@
 Dotfiles for `ren@kiri`: Niri on Arch, dressed in Rosé Pine Moon — and,
 if you want it, the [enso](https://github.com/formalemon/enso) desktop (bar,
 launcher, control center, notifications, wallpaper, power menu, lock, file
-manager, password prompt, keyring, what's playing, login screen). The dotfiles stand on their own: each enso tool adds its part only
-when it's picked at install.
+manager, image viewer, password prompt, keyring, what's playing, clipboard
+history, night light, login screen). The dotfiles stand on their own: each enso tool
+adds its part only when it's picked at install.
 
 Each directory here is one directory of `~/.config`, linked into place.
 
 ```
 niri/                 the compositor
-  config.kdl            entry point: only a list of includes
+  config.kdl            entry point: only a list of includes (the few enso
+                        parts that must come first, then core/, then enso/)
   core/                 niri on its own, needing nothing else
     outputs.kdl           monitors
     input.kdl             keyboard, touchpad, mouse
@@ -24,8 +26,11 @@ niri/                 the compositor
   enso/                 what each enso tool adds: what it starts, its keys,
                         its rules — bar, launch, ctl, notify, wall, power,
                         lock, files, auth, play (Mod+P and the media
-                        keys); included only for the tools picked
-                        (keyring has none: the session bus starts it)
+                        keys), clip (Mod+Ctrl+V), dusk; included only for
+                        the tools picked (keyring and view have none)
+    first/                what a tool must say before core/: the screens
+                          the control center keeps (niri reads the first
+                          section it finds for a screen)
 bash/                 the shell, pure bash: nothing to install
   profile               login shells: PATH, editor, INPUTRC (~/.bash_profile)
   rc                    interactive shells: history, colours (~/.bashrc)
@@ -33,7 +38,8 @@ bash/                 the shell, pure bash: nothing to install
   prompt                path, git state, time taken, exit status — see below
   aliases               shorthands
 fontconfig/           sans-serif and monospace: the fonts enso is set to
-                      (enso writes them), then Adwaita for what they lack
+                      (enso writes them), then Adwaita for what they lack,
+                      then Noto Color Emoji
 alacritty/            the terminal: padding, translucency, a blinking bar
                       cursor; colours from theme/, then enso's over them
 nvim/                 Neovim, one module per concern; plugins through vim.pack,
@@ -42,8 +48,9 @@ nvim/                 Neovim, one module per concern; plugins through vim.pack,
                         enso), a statusline of its own, tree-sitter
                         (nvim-treesitter), the working directory following
                         the project, mini.pick, mini.diff, nvim-tree, LSP
-                        with built-in completion, and a start screen: an
-                        ensō and your recent projects
+                        with built-in completion, key hints when you pause
+                        (mini.clue), and a start screen: an ensō and your
+                        recent projects
   lsp/                  a file per language server; each starts only when
                         its program is installed
 firefox/              Firefox's interface, linked into each profile
@@ -86,8 +93,10 @@ into `~/.local/share/enso/release` and checked, as the fonts are — links
 `enso/`, writes
 `~/.local/state/sumi/niri-enso.kdl` (the list of `niri/enso/` parts niri
 includes), has GTK import the control center's colours, and lets enso-files
-set itself up as every app's file chooser (`enso-files portal enable`) and
-enso-keyring as the session's keyring (`enso-keyring enable`). With
+set itself up as every app's file chooser and what folders open in
+(`enso-files portal enable`), enso-view as what pictures open in
+(`enso-view enable`), and enso-keyring as the session's keyring
+(`enso-keyring enable`). With
 enso-greet it runs `enso-greet enable`, which readies the login screen and
 prints the few lines root has to run; sumi runs nothing as root. Tools
 dropped on a later run are taken away again. It can be run again at any
@@ -105,7 +114,9 @@ into `~/.local/share/icons`, and Google Sans —
 [Flex](https://github.com/googlefonts/googlesans-flex/releases) for the
 interface, [Code](https://github.com/googlefonts/googlesans-code/releases)
 for the terminal, both under the SIL Open Font License — into
-`~/.local/share/fonts`. `install` downloads the pinned versions, checks each
+`~/.local/share/fonts`, with [Noto Color
+Emoji](https://github.com/googlefonts/noto-emoji) (the font file of a tagged
+release, same licence) behind them for emoji. `install` downloads the pinned versions, checks each
 against the SHA-256 written in the script, and unpacks it with `bsdtar`
 (pacman's own libarchive). enso then tells every program to use them
 (`font`, `mono_font`, and `cursor` in `enso/config.toml`).
@@ -118,10 +129,15 @@ With the enso tools (each key comes with its tool):
 | --- | --- |
 | `Mod+Space` | launcher (`enso-launch`) |
 | `Mod+C` | control center (`enso-ctl`) |
-| `Mod+Shift+E` | power menu (`enso-power`): lock, log out, restart, shut down |
+| `Mod+Shift+E` | power menu (`enso-power`): lock, sleep, log out, restart, shut down |
+| `Mod+Ctrl+V` | clipboard history (`enso-clip`): Enter copies the one chosen |
 | `Super+Alt+L` | lock (`enso-lock`) — also by itself after 5 minutes alone, and before sleep |
 | `Mod+E` | files (`enso-files`) |
 | `Mod+T` / `Mod+B` | terminal / browser |
+| `Print` / `Mod+Shift+S` | screenshot: drag a box, Space for the whole screen |
+| Display key | the control center's Displays page (kept for next time) |
+| Calculator key | the launcher, ready for a sum |
+| Keyboard light keys | the keyboard's light, its level on the bar |
 | `Mod+Shift+/` | every binding |
 
 ## Changing the look

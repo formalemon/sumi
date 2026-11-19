@@ -17,3 +17,4 @@ require("sumi.git")        -- changed lines in the gutter: mini.diff
 require("sumi.lsp")        -- servers from lsp/, completion, diagnostics
 require("sumi.tree")       -- the project as a sidebar: nvim-tree
 require("sumi.start")      -- an ensō and recent projects, when started bare
+require("sumi.clue")       -- what can follow <Space>, g, z, [ ], when you pause
