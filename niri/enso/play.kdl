@@ -1,0 +1,11 @@
+// enso-play: what's playing, under the bar's clock — and the media keys,
+// for whichever player is playing (a YouTube tab, Spotify, mpv).
+
+binds {
+    Mod+P hotkey-overlay-title="Now Playing: enso-play" { spawn "enso-play"; }
+
+    XF86AudioPlay  allow-when-locked=true { spawn "enso-play" "play-pause"; }
+    XF86AudioPause allow-when-locked=true { spawn "enso-play" "play-pause"; }
+    XF86AudioNext  allow-when-locked=true { spawn "enso-play" "next"; }
+    XF86AudioPrev  allow-when-locked=true { spawn "enso-play" "previous"; }
+}

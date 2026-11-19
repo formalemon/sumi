@@ -3,7 +3,7 @@
 Dotfiles for `ren@kiri`: Niri on Arch, dressed in Rosé Pine Moon — and,
 if you want it, the [enso](https://github.com/formalemon/enso) desktop (bar,
 launcher, control center, notifications, wallpaper, power menu, lock, file
-manager, password prompt, keyring). The dotfiles stand on their own: each enso tool adds its part only
+manager, password prompt, keyring, what's playing). The dotfiles stand on their own: each enso tool adds its part only
 when it's picked at install.
 
 Each directory here is one directory of `~/.config`, linked into place.
@@ -22,7 +22,8 @@ niri/                 the compositor
     binds.kdl             keys (volume through wpctl)
   enso/                 what each enso tool adds: what it starts, its keys,
                         its rules — bar, launch, ctl, notify, wall, power,
-                        lock, files, auth; included only for the tools picked
+                        lock, files, auth, play (Mod+P and the media
+                        keys); included only for the tools picked
                         (keyring has none: the session bus starts it)
 bash/                 the shell, pure bash: nothing to install
   profile               login shells: PATH, editor, INPUTRC (~/.bash_profile)

@@ -204,7 +204,7 @@ done
 # part of the niri config (niri/enso/<tool>.kdl), and whatever else it needs;
 # a tool not picked leaves no trace.
 
-tools=(bar launch ctl notify wall power lock files auth keyring)
+tools=(bar launch ctl notify wall power lock files auth keyring play)
 declare -A about=(
     [bar]="status bar"
     [launch]="launcher for apps and files"
@@ -216,6 +216,7 @@ declare -A about=(
     [files]="file manager, and every app's file chooser"
     [auth]="asks for your password, and Bluetooth codes"
     [keyring]="keeps passwords and tokens, opened by your login"
+    [play]="what's playing, under the clock, and the media keys"
 )
 remembered=$state/sumi/enso-tools
 previous=" $(tr '\n' ' ' 2>/dev/null <"$remembered" || true) "
@@ -251,7 +252,7 @@ echo "enso"
 if [[ -z $choice ]] && ((asking)); then
     echo "  The enso desktop: a bar, a launcher, a control center, notifications,"
     echo "  a wallpaper, power menu, lock screen, a file manager, a prompt for"
-    echo "  passwords and pairing codes, and a keyring."
+    echo "  passwords and pairing codes, a keyring, and what's playing."
     read -rp "  Install them? [Y]es, all · [n]o · [s]ome " answer </dev/tty || answer=
     case ${answer,,} in
         '' | y | yes) choice=all ;;
@@ -317,6 +318,9 @@ place() {
         link=$bin/enso-$tool
         if [[ -e $link || -L $link ]] && ! ours "$link"; then
             say SKIPPED "$link exists and is not sumi's; move it away and run again"
+        elif [[ ! -x $1/enso-$tool && $source == release ]]; then
+            # A tool newer than the pinned release waits for the next one.
+            say SKIPPED "enso-$tool is not in enso $enso_release yet (--enso-dev builds it)"
         elif [[ ! -x $1/enso-$tool ]]; then
             say FAILED "no enso-$tool in $1"
         else
