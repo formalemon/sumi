@@ -36,8 +36,8 @@ code_release=v7.001
 code_sha256=eebba2a438882396e8530cad6d6cb80182b0afb6e9e0ad07b7340359a53ba2e9
 # And enso, from its own releases (x86-64 Linux; nothing to build). Moving
 # to a newer release is the same: change these two lines and run again.
-enso_release=v0.1.0
-enso_sha256=33805f168ff5ebc5216706a0df231774a6dadf923930118d58b93cb67778224f
+enso_release=v0.2.0
+enso_sha256=f1dc76600e5b67ef8af91cf79255e1149f91cd0381a7600c4e275a7237ded19a
 
 say()  { printf '  %-10s %s\n' "$1" "$2"; }
 
