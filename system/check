@@ -151,6 +151,7 @@ else
         fi
         for pair in "$staged/enso-greet.kdl:/etc/greetd/enso-greet.kdl" \
             "$staged/backdrop.png:/usr/local/share/enso/greet/backdrop.png" \
+            "$staged/backdrop.life:/usr/local/share/enso/greet/backdrop.life" \
             "$staged/config.toml:/etc/greetd/config.toml"; do
             from=${pair%%:*} to=${pair#*:}
             [[ -f $from ]] || continue
