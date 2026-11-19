@@ -3,7 +3,7 @@
 Dotfiles for `ren@kiri`: Niri on Arch, dressed in Rosé Pine Moon — and,
 if you want it, the [enso](https://github.com/formalemon/enso) desktop (bar,
 launcher, control center, notifications, wallpaper, power menu, lock, file
-manager, password prompt, keyring, what's playing). The dotfiles stand on their own: each enso tool adds its part only
+manager, password prompt, keyring, what's playing, login screen). The dotfiles stand on their own: each enso tool adds its part only
 when it's picked at install.
 
 Each directory here is one directory of `~/.config`, linked into place.
@@ -59,6 +59,9 @@ theme/                the colours, without enso
 enso/                 enso's settings (linked only if a tool is picked)
   config.toml           the fonts, the cursor, the wallpaper
   wallpapers/           pictures enso-wall shows
+system/               changes outside $HOME, for root to make by hand: a
+                      quiet boot, the console's colours, the ensō at the
+                      console login, greetd (install never runs these)
 ```
 
 ## Install
@@ -83,7 +86,9 @@ into `~/.local/share/enso/release` and checked, as the fonts are — links
 `~/.local/state/sumi/niri-enso.kdl` (the list of `niri/enso/` parts niri
 includes), has GTK import the control center's colours, and lets enso-files
 set itself up as every app's file chooser (`enso-files portal enable`) and
-enso-keyring as the session's keyring (`enso-keyring enable`). Tools
+enso-keyring as the session's keyring (`enso-keyring enable`). With
+enso-greet it runs `enso-greet enable`, which readies the login screen and
+prints the few lines root has to run; sumi runs nothing as root. Tools
 dropped on a later run are taken away again. It can be run again at any
 time; it never overwrites a file that is not its own.
 

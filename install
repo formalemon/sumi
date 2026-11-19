@@ -204,7 +204,7 @@ done
 # part of the niri config (niri/enso/<tool>.kdl), and whatever else it needs;
 # a tool not picked leaves no trace.
 
-tools=(bar launch ctl notify wall power lock files auth keyring play)
+tools=(bar launch ctl notify wall power lock files auth keyring play greet)
 declare -A about=(
     [bar]="status bar"
     [launch]="launcher for apps and files"
@@ -217,6 +217,7 @@ declare -A about=(
     [auth]="asks for your password, and Bluetooth codes"
     [keyring]="keeps passwords and tokens, opened by your login"
     [play]="what's playing, under the clock, and the media keys"
+    [greet]="login screen (greetd; root puts it in place)"
 )
 remembered=$state/sumi/enso-tools
 previous=" $(tr '\n' ' ' 2>/dev/null <"$remembered" || true) "
@@ -252,7 +253,8 @@ echo "enso"
 if [[ -z $choice ]] && ((asking)); then
     echo "  The enso desktop: a bar, a launcher, a control center, notifications,"
     echo "  a wallpaper, power menu, lock screen, a file manager, a prompt for"
-    echo "  passwords and pairing codes, a keyring, and what's playing."
+    echo "  passwords and pairing codes, a keyring, what's playing, and a login"
+    echo "  screen."
     read -rp "  Install them? [Y]es, all · [n]o · [s]ome " answer </dev/tty || answer=
     case ${answer,,} in
         '' | y | yes) choice=all ;;
@@ -303,6 +305,10 @@ for tool in "${tools[@]}"; do
     fi
     # Nor is it the keyring anymore (what's in it stays, sealed).
     if [[ $tool == keyring ]]; then
+        "$link" disable | sed 's/^/  /' || true
+    fi
+    # The login screen is root's to take away: it says how.
+    if [[ $tool == greet ]]; then
         "$link" disable | sed 's/^/  /' || true
     fi
     rm "$link"
@@ -378,6 +384,12 @@ fi
 # The file manager as every application's file chooser: its own set-up.
 if has keyring && [[ -x $bin/enso-keyring ]]; then
     "$bin/enso-keyring" enable | sed 's/^/  /'
+fi
+
+# The login screen readies its files; putting them in place is root's, and
+# it prints the lines for that. sumi runs nothing as root.
+if has greet && [[ -x $bin/enso-greet ]]; then
+    "$bin/enso-greet" enable | sed 's/^/  /'
 fi
 
 if has files && [[ -x $bin/enso-files ]]; then
