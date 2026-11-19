@@ -8,10 +8,13 @@
 #   ./install --enso             all the enso tools, without asking
 #   ./install --enso=bar,files   just these
 #   ./install --no-enso          none: the dotfiles alone
+#   ./install --enso-dev         the enso tools built from ~/dev/enso (or
+#                                $ENSO) rather than its release, for working
+#                                on enso; --enso-release goes back
 #
 # The dotfiles don't need enso. What each enso tool adds — to niri, to GTK,
-# its config — is put in place only for the tools picked; enso is built from
-# ~/dev/enso (or $ENSO).
+# its config — is put in place only for the tools picked. The tools come from
+# enso's release, pinned below like the fonts; --enso-dev is remembered.
 
 set -euo pipefail
 
@@ -31,6 +34,10 @@ flex_release=v5.000
 flex_sha256=c20b00878dd801d1bfc06d771732447940c7255bf94cf538ce0102c7fb06fa85
 code_release=v7.001
 code_sha256=eebba2a438882396e8530cad6d6cb80182b0afb6e9e0ad07b7340359a53ba2e9
+# And enso, from its own releases (x86-64 Linux; nothing to build). Moving
+# to a newer release is the same: change these two lines and run again.
+enso_release=v0.1.0
+enso_sha256=33805f168ff5ebc5216706a0df231774a6dadf923930118d58b93cb67778224f
 
 say()  { printf '  %-10s %s\n' "$1" "$2"; }
 
@@ -215,12 +222,18 @@ previous=" $(tr '\n' ' ' 2>/dev/null <"$remembered" || true) "
 asking=0
 [[ -t 0 && -r /dev/tty ]] && asking=1
 
+# Where the tools come from: the release (the default), or a checkout built
+# here. The last choice holds until another is made.
+remembered_source=$state/sumi/enso-source
+source=
 choice=
 for arg in "$@"; do
     case $arg in
         --enso) choice=all ;;
         --no-enso) choice=none ;;
         --enso=*) choice=${arg#--enso=} ;;
+        --enso-dev) source=dev ;;
+        --enso-release) source=release ;;
         *) echo "install: unknown option $arg" >&2; exit 2 ;;
     esac
 done
@@ -268,14 +281,21 @@ esac
 has() { [[ " ${picked[*]} " == *" $1 "* ]]; }
 mkdir -p "$state/sumi"
 printf '%s\n' "${picked[@]}" >"$remembered"
+source=${source:-$(cat "$remembered_source" 2>/dev/null || echo release)}
+printf '%s\n' "$source" >"$remembered_source"
 
 enso=${ENSO:-$HOME/dev/enso}
+released=$data/enso/release
 bin=$HOME/.local/bin
-# Tools no longer wanted: their links go (only ours, into the enso build).
+# ours <link>: whether a link in ~/.local/bin is one this script made.
+ours() {
+    [[ -L $1 && ( $(readlink "$1") == "$enso/target/"* || $(readlink "$1") == "$released/"* ) ]]
+}
+# Tools no longer wanted: their links go (only ours).
 for tool in "${tools[@]}"; do
     has "$tool" && continue
     link=$bin/enso-$tool
-    [[ -L $link && $(readlink "$link") == "$enso/target/"* ]] || continue
+    ours "$link" || continue
     # The file chooser goes back to what it was before taking it away.
     if [[ $tool == files ]]; then
         "$link" portal disable | sed 's/^/  /' || true
@@ -288,17 +308,40 @@ for tool in "${tools[@]}"; do
     say removed "$link"
 done
 
+# place <dir>: link each picked tool from <dir>, over a link of ours but
+# never over a program put there some other way.
+place() {
+    local tool link
+    mkdir -p "$bin"
+    for tool in "${picked[@]}"; do
+        link=$bin/enso-$tool
+        if [[ -e $link || -L $link ]] && ! ours "$link"; then
+            say SKIPPED "$link exists and is not sumi's; move it away and run again"
+        elif [[ ! -x $1/enso-$tool ]]; then
+            say FAILED "no enso-$tool in $1"
+        else
+            ln -sfn "$1/enso-$tool" "$link"
+        fi
+    done
+}
+
 if ((${#picked[@]})); then
-    if [[ -f $enso/Cargo.toml ]]; then
-        packages=()
-        for tool in "${picked[@]}"; do packages+=(-p "enso-$tool"); done
-        (cd "$enso" && cargo build --release "${packages[@]}")
-        for tool in "${picked[@]}"; do
-            ln -sf "$enso/target/release/enso-$tool" "$bin/enso-$tool"
-        done
-        say built "${picked[*]}"
+    if [[ $source == dev ]]; then
+        if [[ -f $enso/Cargo.toml ]]; then
+            packages=()
+            for tool in "${picked[@]}"; do packages+=(-p "enso-$tool"); done
+            (cd "$enso" && cargo build --release "${packages[@]}")
+            place "$enso/target/release"
+            say built "${picked[*]} (from $enso)"
+        else
+            say SKIPPED "no enso checkout at $enso (set ENSO=…, or --enso-release)"
+        fi
     else
-        say SKIPPED "no enso checkout at $enso (set ENSO=…)"
+        fetch "$released" "$enso_release" \
+            "https://github.com/formalemon/enso/releases/download/$enso_release/enso-$enso_release-x86_64-linux.tar.gz" \
+            "$enso_sha256" "enso-$enso_release-x86_64-linux"
+        place "$released"
+        say linked "${picked[*]} (enso $enso_release)"
     fi
     link enso "$config/enso"
 fi
@@ -341,11 +384,22 @@ fi
 if ((${#picked[@]})); then
     echo "palette"
     ours=$here/theme/rose-pine-moon.toml
-    theirs=$enso/crates/enso-core/themes/rose-pine-moon.toml
     registered=$config/enso/themes/sumi.toml
-    if [[ ! -f $theirs ]]; then
-        say SKIPPED "no enso checkout to compare the palette with"
-    elif [[ $(palette "$ours") == "$(palette "$theirs")" ]]; then
+    # enso's own rose-pine-moon, as `palette` gives it, from the enso-ctl
+    # just installed — or, without it, from the checkout.
+    theirs=
+    if [[ -x $bin/enso-ctl ]]; then
+        theirs=$("$bin/enso-ctl" theme show rose-pine-moon 2>/dev/null | {
+            read -r first
+            [[ $first =~ ,\ ([a-z]+)\)$ ]] && echo "variant ${BASH_REMATCH[1]}"
+            while read -r role hex; do echo "$role ${hex,,}"; done
+        } | sort)
+    elif [[ -f $enso/crates/enso-core/themes/rose-pine-moon.toml ]]; then
+        theirs=$(palette "$enso/crates/enso-core/themes/rose-pine-moon.toml")
+    fi
+    if [[ -z $theirs ]]; then
+        say SKIPPED "no enso to compare the palette with"
+    elif [[ $(palette "$ours") == "$theirs" ]]; then
         say ok "enso's rose-pine-moon is sumi's palette"
         if [[ -f $registered ]] && grep -q '^# Written by sumi' "$registered"; then
             rm "$registered"

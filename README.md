@@ -58,6 +58,7 @@ git clone https://github.com/formalemon/sumi ~/dev/sumi
 ~/dev/sumi/install --enso              # …all the enso tools, without asking
 ~/dev/sumi/install --enso=bar,files    # …just these
 ~/dev/sumi/install --no-enso           # …none: the dotfiles alone
+~/dev/sumi/install --enso-dev          # enso built from ~/dev/enso, for working on it
 ```
 
 `install` links each directory into `~/.config` (and the two bash files into
@@ -65,13 +66,21 @@ git clone https://github.com/formalemon/sumi ~/dev/sumi
 (`~/Pictures/Screenshots`), and fetches the cursor and the fonts. Then it
 asks about enso: **Y**es, all of it (the default), **n**o, or **s**ome — one
 question per tool, your last answers the defaults. For the tools picked it
-builds them from `~/dev/enso` (or `$ENSO`) onto `PATH`, links `enso/`, writes
+puts enso's release on `PATH` — the version pinned in `install`, fetched
+into `~/.local/share/enso/release` and checked, as the fonts are — links
+`enso/`, writes
 `~/.local/state/sumi/niri-enso.kdl` (the list of `niri/enso/` parts niri
 includes), has GTK import the control center's colours, and lets enso-files
 set itself up as every app's file chooser (`enso-files portal enable`) and
 enso-keyring as the session's keyring (`enso-keyring enable`). Tools
 dropped on a later run are taken away again. It can be run again at any
 time; it never overwrites a file that is not its own.
+
+Working on enso itself, `--enso-dev` builds the picked tools from
+`~/dev/enso` (or `$ENSO`) and puts those on `PATH` instead, ahead of the
+release; the choice is remembered, and `--enso-release` goes back. A new
+enso release reaches a machine when the pin in `install` (two lines) moves
+to it and `install` runs again.
 
 The cursor and the fonts come from their authors' own GitHub releases, not
 packages: [Bibata Modern Ice](https://github.com/ful1e5/Bibata_Cursor/releases)
