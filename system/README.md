@@ -41,8 +41,9 @@ boot, turn it off again.
 
 ## 2. A boot menu: enso-boot
 
-enso-boot is a boot menu for the firmware: Arch or Windows over voxel
-rice terraces at dusk. It never picks for you. It starts Arch as
+enso-boot is a boot menu for the firmware: Arch or Windows under a voxel
+pagoda on an island in the sky at dusk, the camera circling it. It never
+picks for you. It starts Arch as
 systemd-boot's entry says, so the kernel options (step 4) apply to both
 menus. systemd-boot stays underneath it.
 
