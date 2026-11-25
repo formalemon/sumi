@@ -126,6 +126,10 @@ binds {
 
     Mod+F { maximize-column; }
     Mod+Shift+F { fullscreen-window; }
+    // F11 as in most programs, and in Minecraft: the window fills the
+    // screen, over the bar, and back. Works on X11 games too (through
+    // xwayland-satellite), which don't always manage it themselves.
+    F11 repeat=false hotkey-overlay-title="Fullscreen" { fullscreen-window; }
     Mod+M { maximize-window-to-edges; }
     Mod+Ctrl+F { expand-column-to-available-width; }
     Mod+Shift+C { center-column; }
