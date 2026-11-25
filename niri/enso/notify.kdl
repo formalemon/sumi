@@ -2,6 +2,11 @@
 
 spawn-at-startup "enso-notify"
 
+binds {
+    // What came in: the history, out of the bar's bell (again to close).
+    Mod+N hotkey-overlay-title="Notifications: enso-notify" { spawn "enso-notify" "history" "toggle"; }
+}
+
 // Notifications are for your eyes: leave them out of screen shares.
 layer-rule {
     match namespace="^enso-notify$"
