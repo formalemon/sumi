@@ -218,7 +218,7 @@ done
 # part of the niri config (niri/enso/<tool>.kdl), and whatever else it needs;
 # a tool not picked leaves no trace.
 
-tools=(bar launch ctl notify wall power lock files view auth keyring play clip dusk greet)
+tools=(bar launch ctl notify wall power lock files view listen auth keyring play clip dusk greet)
 declare -A about=(
     [bar]="status bar"
     [launch]="launcher for apps and files"
@@ -228,7 +228,8 @@ declare -A about=(
     [power]="power menu"
     [lock]="lock screen"
     [files]="file manager, and every app's file chooser"
-    [view]="image viewer: pictures open in it"
+    [view]="pictures and videos open in it"
+    [listen]="sound files open in it, one after another"
     [auth]="asks for your password, and Bluetooth codes"
     [keyring]="keeps passwords and tokens, opened by your login"
     [play]="what's playing, under the clock, and the media keys"
@@ -269,9 +270,10 @@ ask() {
 echo "enso"
 if [[ -z $choice ]] && ((asking)); then
     echo "  The enso desktop: a bar, a launcher, a control center, notifications,"
-    echo "  a wallpaper, power menu, lock screen, a file manager, a prompt for"
-    echo "  passwords and pairing codes, a keyring, what's playing, clipboard"
-    echo "  history, a night light, and a login screen."
+    echo "  a wallpaper, power menu, lock screen, a file manager, a viewer for"
+    echo "  pictures and videos, a player for sound, a prompt for passwords and"
+    echo "  pairing codes, a keyring, what's playing, clipboard history, a night"
+    echo "  light, and a login screen."
     read -rp "  Install them? [Y]es, all · [n]o · [s]ome " answer </dev/tty || answer=
     case ${answer,,} in
         '' | y | yes) choice=all ;;
@@ -321,8 +323,8 @@ for tool in "${tools[@]}"; do
         "$link" portal disable | sed 's/^/  /' || true
     fi
     # Nor is it the keyring anymore (what's in it stays, sealed), nor what
-    # opens pictures.
-    if [[ $tool == keyring || $tool == view ]]; then
+    # opens pictures, videos or sound.
+    if [[ $tool == keyring || $tool == view || $tool == listen ]]; then
         "$link" disable | sed 's/^/  /' || true
     fi
     # The login screen is root's to take away: it says how.
@@ -420,9 +422,13 @@ if has greet && [[ -x $bin/enso-greet ]]; then
     "$bin/enso-greet" enable | sed 's/^/  /'
 fi
 
-# What pictures open in (those nothing else was chosen for).
+# What pictures and videos open in, and sound files (those nothing else
+# was chosen for).
 if has view && [[ -x $bin/enso-view ]]; then
     "$bin/enso-view" enable | sed 's/^/  /'
+fi
+if has listen && [[ -x $bin/enso-listen ]]; then
+    "$bin/enso-listen" enable | sed 's/^/  /'
 fi
 
 if has files && [[ -x $bin/enso-files ]]; then

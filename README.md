@@ -94,8 +94,9 @@ into `~/.local/share/enso/release` and checked, as the fonts are — links
 `~/.local/state/sumi/niri-enso.kdl` (the list of `niri/enso/` parts niri
 includes), has GTK import the control center's colours, and lets enso-files
 set itself up as every app's file chooser and what folders open in
-(`enso-files portal enable`), enso-view as what pictures open in
-(`enso-view enable`), and enso-keyring as the session's keyring
+(`enso-files portal enable`), enso-view as what pictures and videos open
+in (`enso-view enable`), enso-listen as what sound files open in
+(`enso-listen enable`), and enso-keyring as the session's keyring
 (`enso-keyring enable`). With
 enso-greet it runs `enso-greet enable`, which readies the login screen and
 prints the few lines root has to run; sumi runs nothing as root. Tools
