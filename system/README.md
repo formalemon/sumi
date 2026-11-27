@@ -20,7 +20,7 @@ What it comes to, in order:
 2. A boot menu with a picture (enso-boot), Arch or Windows.
 3. A small initramfs: Intel's driver only.
 4. A quiet boot: no text, and the first console kept graphical.
-5. A boot splash (Plymouth): the ensō painting itself while Linux starts.
+5. A boot splash (Plymouth): the login screen's terraces while Linux starts.
 6. A login screen (greetd and enso-greet), straight into niri.
 7. Optional: the console in Rosé Pine Moon, and the ensō above a console
    login.
@@ -127,8 +127,8 @@ words out again.
 
 Plymouth (`pacman -S plymouth`) keeps a picture on the screen while Linux
 starts. With enso, the theme is the login screen's: the terraces,
-quietened, and on them the ensō painting itself, then a light running
-along it until the login screen is ready.
+quietened, still, from the boot menu's last frame until the login screen
+draws the same picture.
 
 `enso-greet enable` (step 6) writes the theme to
 `~/.local/share/enso/greet/plymouth` and prints the lines that put it in
@@ -158,8 +158,8 @@ the options, `sudo mkinitcpio -P`, and `sudo pacman -Rns plymouth`.
 replaces the console login on the first console. It runs a *greeter*,
 which asks who you are and starts your session.
 
-- **With enso**, the greeter is enso-greet: the terraces, the ensō, your
-  name and a password field, then niri. `enso-greet enable` (which
+- **With enso**, the greeter is enso-greet: the terraces, your name and a
+  password field, then niri. `enso-greet enable` (which
   `install` runs when `greet` is one of the enso tools picked) writes its
   files and prints the lines to run as root. Run it again after
   rebuilding enso.
