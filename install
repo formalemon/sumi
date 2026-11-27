@@ -40,8 +40,8 @@ emoji_release=v2026-09-24-unicode18_0
 emoji_sha256=15671215ab769fdc7162a045d56fd7d7e477c51b04e6b3c761d914d8fdd6cc44
 # And enso, from its own releases (x86-64 Linux; nothing to build). Moving
 # to a newer release is the same: change these two lines and run again.
-enso_release=v0.6.0
-enso_sha256=f943b2aa21bdc9eb448e7b8ddbf2624968ba799a396fcd09d7bf4f6405ccfc41
+enso_release=v0.7.0
+enso_sha256=91c5fe62198723dcc8818e2036d1c174b7816a9d981b4cc6179e9a6f833d1ced
 
 say()  { printf '  %-10s %s\n' "$1" "$2"; }
 
