@@ -11,9 +11,10 @@ import = ["~/.config/alacritty/rose-pine-moon.toml", "~/.local/state/enso/alacri
 padding = { x = 14, y = 12 }
 # Spread what the cell grid leaves over evenly around it.
 dynamic_padding = true
-# A hint of the wallpaper shows through; Neovim draws no background of
-# its own (see nvim/init.lua), so it is translucent with the terminal.
-opacity = 0.95
+# A hint of the wallpaper shows through: 0.95, from rose-pine-moon.toml, or
+# from enso, made right for the theme (terminal_opacity in enso/config.toml),
+# which is why it isn't set here, where it would win over both. Neovim draws
+# no background of its own (see nvim/init.lua), so it is translucent too.
 
 # The cursor as a text field has it: a thin blinking bar between characters,
 # in the accent colour enso gives it (as enso's own carets are). It stays a

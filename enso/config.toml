@@ -12,6 +12,10 @@ mono_font = "Google Sans Code"
 # `enso-ctl cursor list` shows what else there is.
 cursor = "Bibata-Modern-Ice"
 cursor_size = 24
+# A hint of the wallpaper through the terminal, the same in every theme:
+# enso gives Alacritty 0.95 in a dark one and a touch less in a light one,
+# where the same few percent would all but vanish.
+terminal_opacity = 0.95
 
 [wall]
 # Shown for every theme that has no picture of its own.

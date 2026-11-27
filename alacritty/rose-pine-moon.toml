@@ -73,3 +73,8 @@ blue = "#9ccfd8"
 magenta = "#c4a7e7"
 cyan = "#ea9a97"
 white = "#e0def4"
+
+# A hint of the wallpaper through the terminal. With enso, its own file is
+# imported after this and sets it for the theme (terminal_opacity).
+[window]
+opacity = 0.95
